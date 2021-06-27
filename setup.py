@@ -1,5 +1,9 @@
 from setuptools import setup
 
+requires = [
+    'flask'
+]
+
 setup(name='papaguy-tamer',
       version='0.1',
       description='communicate with papaguy',
@@ -7,4 +11,7 @@ setup(name='papaguy-tamer',
       author='qm210',
       author_email='quantemace@gmail.com',
       packages=['papaguy-tamer'],
-      zip_safe=False)
+      install_requires = requires
+)
+
+# FLASK_APP, DEBUG = ...?
