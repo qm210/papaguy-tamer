@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PapaGuy-Tamer</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    </head>
+    <body>
+        <h1>{{ title }}</h1>
+        <p>{{ message }}</p>
+        <ul>
+            {% for item in list %}
+                <li><a href="{{ item.href }}">{{ item.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>
