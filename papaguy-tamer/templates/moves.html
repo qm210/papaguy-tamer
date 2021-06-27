@@ -7,9 +7,9 @@
     <body>
         <h1>{{ title }}</h1>
         <p>{{ message }}</p>
-        <ul style="list-style:none;">
+        <ul>
             {% for item in list %}
-                <li>{{ item }}</li>
+                <li><a href="{{ item.href }}">{{ item.title }}</a></li>
             {% endfor %}
         </ul>
     </body>
