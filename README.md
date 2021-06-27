@@ -1,2 +1,2 @@
 # papaguy-tamer
-intermediate-level code to parse BeRo's code and talk with the papaguy-itself
+intermediate-level code to parse BeRo's json output and talk with the papaguy-itself
