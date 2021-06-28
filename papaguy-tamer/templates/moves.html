@@ -8,22 +8,20 @@
         <h1>{{ title }}</h1>
         <p>{{ message }}</p>
         <ul>
-        {% for item in list %}
+        {% for entry in list %}
             <li>
-            {% if 'href' in item %}
-                {% if 'sample' in item %}
-                    [Sample]
+                {% if 'type' in entry %}
+                    [{{entry.type}}]
                 {% endif %}
-                {% if 'move' in item %}
-                    [Move]
+                {% if 'href' in entry %}
+                    <a href="{{ entry.href }}">{{entry.id}}</a>
                 {% endif %}
-                <a href="{{ item.href }}">{{item.id}}</a>
-            {% else %}
-                Broken: {{item.id}}
-            {% endif %}
+                {% if entry.broken %}
+                    <b style="color: red">!!BROKEN!! {{entry.id}}</b>
+                {% endif %}
             </li>
         {% endfor %}
         </ul>
-        <button style='margin-top: 10rem; padding: .5rem;' onclick="document.location.reload()">F5</button>
+        <button style='margin-top: 5rem; padding: .5rem;' onclick="document.location.reload()">F5</button>
     </body>
 </html>
