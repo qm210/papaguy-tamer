@@ -1,7 +1,9 @@
 from setuptools import setup
 
 requires = [
-    'flask'
+    'flask',
+    'pyserial',
+    'playsound'
 ]
 
 setup(name='papaguy-tamer',
