@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory
+from flask import Flask, render_template, send_from_directory, redirect, url_for
 from time import time, ctime, sleep
 from serial import Serial
 from dataclasses import dataclass, field
@@ -88,9 +88,10 @@ def do_move(id=None):
         return f"Move \"{id}\" not found"
 
     if 'sample' in existing_move:
-        playsound(existing_move['sample'])
+        playsound(MOVES_DIR + '/' + existing_move['sample'], block=False)
+        return f"Playing {existing_move['sample']}"
 
-    return f"would now execute move {existing_move}"
+    return redirect(url_for('list_moves'))
 
 
 @app.route('/serial/<port>')
