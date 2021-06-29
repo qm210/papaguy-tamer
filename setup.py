@@ -3,7 +3,8 @@ from setuptools import setup
 requires = [
     'flask',
     'pyserial',
-    'playsound'
+    'playsound',
+    'future-fstrings'
 ]
 
 setup(name='papaguy-tamer',

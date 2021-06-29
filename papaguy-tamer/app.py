@@ -8,6 +8,8 @@ from . import VERSION
 from .func_papaguy_itself import papaguy
 from .func_move import get_available_moves, execute_move
 
+# -*- coding: future_fstrings -*-
+
 app = Flask(__name__)
 server_start_time = time()
 known_moves = []
