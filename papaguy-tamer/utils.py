@@ -1,5 +1,6 @@
 from .PythonAudioEnvelope import gen_envelope
 from contextlib import redirect_stdout
+from simpleaudio import WaveObject
 from os import devnull
 
 from . import TIME_RESOLUTION_IN_SEC
@@ -14,3 +15,6 @@ def generate_envelope_as_bero_format(wavfile):
             {'time': step, 'value': env} for (step, env) in enumerate(result)
         ]
     }
+
+def play_sound(wavefile):
+    WaveObject.from_wave_file(wavefile).play()

@@ -1,12 +1,12 @@
 from flask import Flask, render_template, send_from_directory, request
 from time import time, ctime
 from threading import Thread
-from playsound import playsound
 import os
 
 from . import VERSION
 from .func_papaguy_itself import papaguy
 from .func_move import get_available_moves, execute_move
+from .utils import play_sound
 
 app = Flask(__name__)
 server_start_time = time()
@@ -49,7 +49,7 @@ def initiate_move(id=None):
 
     if 'sample' in existing_move:
         # block=False cannot be used on this platform yet
-        Thread(target=playsound, args=(existing_move['sample'],), daemon=True).start()
+        Thread(target=play_sound, args=(existing_move['sample'],), daemon=True).start()
 
     if 'env' in existing_move:
         pass

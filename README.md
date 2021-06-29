@@ -4,15 +4,16 @@ qm210, one week before UC11
 
 needs Python 3.9, and make sure to use the right interpreter for your system (you might need to write python3.9, pip3.9 and pay attention to your $PATH)
 
-then use pip as usual on all the packages: (you need the vext / vext.gi for playsound)
+you might need some general packages like python3-dev, libasound2-dev (for portaudio), ... installed.
 
-pip install playsound pyserial flask vext vext.gi
+then, after checkout, go the virtualenv way:
 
-... and whatever you need (see ImportErrors)
+python -m venv ./venv
+source ./venv/bin/activate
+pip install -r requirements.txt
 
 run with
 python -m papaguy-tamer
-
 
 let's see whether that works.
 enjoy, QM
