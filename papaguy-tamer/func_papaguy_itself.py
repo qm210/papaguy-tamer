@@ -1,3 +1,5 @@
+# -*- coding: future_fstrings -*-
+
 from serial import Serial
 from time import sleep
 from struct import pack

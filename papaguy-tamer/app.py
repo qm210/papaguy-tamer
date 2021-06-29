@@ -1,3 +1,5 @@
+# -*- coding: future_fstrings -*-
+
 from flask import Flask, render_template, send_from_directory, request
 from time import time, ctime
 from threading import Thread
@@ -7,8 +9,6 @@ import os
 from . import VERSION
 from .func_papaguy_itself import papaguy
 from .func_move import get_available_moves, execute_move
-
-# -*- coding: future_fstrings -*-
 
 app = Flask(__name__)
 server_start_time = time()

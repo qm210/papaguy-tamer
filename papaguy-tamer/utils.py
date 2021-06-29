@@ -1,3 +1,5 @@
+# -*- coding: future_fstrings -*-
+
 from .PythonAudioEnvelope import gen_envelope
 from contextlib import redirect_stdout
 from os import devnull
