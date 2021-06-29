@@ -1,8 +1,12 @@
 from . import VERSION, PRODUCTION
 from .app import app
+from .batch import batch_jobs
+
 
 if __name__ == '__main__':
     print("papaguy-tamer v", VERSION)
+
+    batch_jobs()
 
     if PRODUCTION:
         from waitress import serve

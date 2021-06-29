@@ -1,12 +1,13 @@
 import wave
 import struct
+import sys
 
-# generates an envelope for a wav file. only 44.1Khz and 16bit signed supported because lazy. 
+# generates an envelope for a wav file. only 44.1Khz and 16bit signed supported because lazy.
 # fname = file name
 # smoothing = release/fall coefficient. 0.9999 should work fine. experiment for best results. values < 0.999 probably do not make sense.
 # normalize = if true, normalizes the envelope to peak at 1
 # returns a float array with the envelope in fixed one-per-10ms values.
-def gen_envelope(fname, smoothing = 0.9999, normalize = True):
+def gen_envelope(fname, time_step_in_secs = 0.05, smoothing = 0.9999, normalize = True):
     wf = wave.open(fname, 'rb')
     chunk = 1024
 
@@ -44,16 +45,16 @@ def gen_envelope(fname, smoothing = 0.9999, normalize = True):
         curenv = max(abs(sample), curenv * smoothing)
         count = count + 1
 
-        if (count == 441): # snapshots equidistant 10ms
+        if (count >= 44100 * time_step_in_secs): # snapshots equidistant in given steps, default 50ms
             count = 0
             env.append(curenv)
             curmax = max(curmax, curenv)
 
-    
+
     while len(data) > 0:
-        
+
         curs = 0.0
-        
+
         if (channels == 1):
             for s in struct.iter_unpack("<h", data):
                 curs = s[0] / 32768.0
@@ -65,13 +66,19 @@ def gen_envelope(fname, smoothing = 0.9999, normalize = True):
 
 
         data = wf.readframes(chunk)
-    
+
     if (normalize and curmax > 0.0000001):
         nfac = 1.0 / curmax
         env = [x * nfac for x in env]
 
     return env
 
-#test
-env = gen_envelope("realparrot_07_blacksheep.wav")
-print(env)
+
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print("call as:\n", sys.argv[0], "<wav file>")
+        quit()
+    filename = sys.argv[1]
+    env = gen_envelope(filename)
+    print("\nENVELOPE:")
+    print(env)
