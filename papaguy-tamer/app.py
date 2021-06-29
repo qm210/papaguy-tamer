@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory, redirect, url_for
+from flask import Flask, render_template, send_from_directory, request
 from time import time, ctime
 from threading import Thread
 from playsound import playsound
@@ -9,9 +9,7 @@ from .func_papaguy_itself import papaguy
 from .func_move import get_available_moves, execute_move
 
 app = Flask(__name__)
-
 server_start_time = time()
-
 known_moves = []
 
 
@@ -63,9 +61,8 @@ def initiate_move(id=None):
     #return redirect(url_for('list_moves'))
 
 
-@app.route('/serial/<port>')
-def connect_serial(port=None):
-    global papaguy
+@app.route('/connect/<port>')
+def connect_serial(port):
     if papaguy.connection is not None:
         return render_template(
             'list.html',
@@ -79,3 +76,14 @@ def connect_serial(port=None):
     thread = Thread(target=papaguy.serial_log)
     thread.start()
     return f"Started on port {papaguy.port}. Have fün."
+
+@app.route('/connect')
+def connect_serial_by_query():
+    port = request.args.get('port')
+    print("QUERY:", request.args, port)
+    connect_serial(port)
+
+# linux compatibility
+@app.route('/connect/dev/<port>')
+def connect_serial_with_dev(port):
+    connect_serial(port=f"dev/{port}")
