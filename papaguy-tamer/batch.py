@@ -1,5 +1,3 @@
-# -*- coding: future_fstrings -*-
-
 from glob import glob
 import os
 import json

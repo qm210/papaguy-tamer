@@ -1,5 +1,3 @@
-# -*- coding: future_fstrings -*-
-
 from flask import Flask, render_template, send_from_directory, request
 from time import time, ctime
 from threading import Thread
@@ -50,7 +48,8 @@ def initiate_move(id=None):
         return f"Move \"{id}\" not found. Maybe refresh the main 'moves' page."
 
     if 'sample' in existing_move:
-        playsound(existing_move['sample'], block=False)
+        # block=False cannot be used on this platform yet
+        Thread(target=playsound, args=(existing_move['sample'],), daemon=True).start()
 
     if 'env' in existing_move:
         pass
