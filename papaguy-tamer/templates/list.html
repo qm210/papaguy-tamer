@@ -3,20 +3,31 @@
     <head>
         <title>PapaGuy-Tamer</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        {% if refresh is defined %}
+            <meta http-equiv="refresh" content="{{refresh}}">
+        {% endif %}
+        <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function(event) {
+                window.scrollTo(0, document.body.scrollHeight);
+            });
+        </script>
     </head>
     <body>
         <h1>{{ title }}</h1>
-        <p>{{ message }}</p>
+        <p>{{ message | safe }}</p>
         <ul style="list-style:none;">
             {% for item in list %}
                 <li>
                     {% if href is defined %}
-                        <a href="{{href[loop.index0]}}">{{item}}</a>
+                        <a href="{{href[loop.index0]}}" onclick="document.body.style.cursor='wait';">{{item}}</a>
                     {% else %}
                         {{ item }}
                     {% endif %}
                 </li>
             {% endfor %}
         </ul>
+        {% if footer is defined %}
+            {{ footer | safe }}
+        {% endif %}
     </body>
 </html>

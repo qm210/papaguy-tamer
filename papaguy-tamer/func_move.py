@@ -75,6 +75,6 @@ def execute_move(move):
             value = point['value']
             print(time_sec, value)
             Timer(time_sec, papaguy.serial_send, args=(target_name, value))
-    print('\n')
+    print()
 
 

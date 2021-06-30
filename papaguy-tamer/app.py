@@ -1,4 +1,4 @@
-from flask import Flask, render_template, send_from_directory, request
+from flask import Flask, render_template, send_from_directory, request, url_for, redirect
 from time import time, ctime
 from threading import Thread
 import os
@@ -19,6 +19,7 @@ def index():
         'home.html',
         title=f"papaguy-tamer v{VERSION} is running since {ctime(server_start_time)}, thanks for checking by.",
         message=f"qm is wondering: Who the fuck implemented that time string formatting??",
+        connected=papaguy.connection is not None
     )
 
 
@@ -60,24 +61,17 @@ def initiate_move(id=None):
         thread.start()
 
     return f"Executing {existing_move['id']} [{existing_move['type']}]"
-    #return redirect(url_for('list_moves'))
 
 
 @app.route('/connect/<port>')
 def connect_serial(port):
     if papaguy.connection is not None:
-        return render_template(
-            'list.html',
-            title="Running.",
-            message=f"this thing is now blocking port {papaguy.port}",
-            list=papaguy.log
-        )
+        return print_serial_log()
 
     papaguy.connect(port)
-
     thread = Thread(target=papaguy.serial_log)
     thread.start()
-    return f"Started on port {papaguy.port}. Have fün."
+    return redirect(url_for('print_serial_log'))
 
 
 # convenience (if any)
@@ -97,10 +91,30 @@ def connect_serial_with_dev(port):
 def list_serial_ports():
     ports = papaguy.get_portlist()
     links = ['./connect/' + port for port in ports]
-    print("LINKS:", links)
     return render_template(
         'list.html',
         title="COM ports",
+        message=f"Currently connected to port: {papaguy.port}",
         list=ports,
         href=links
+    )
+
+
+@app.route('/log')
+def print_serial_log():
+    if papaguy.connection is None:
+        return render_template(
+            'list.html',
+            title="Not connected.",
+            message=f"Log last updated at {ctime(time())}",
+            footer="<a href=\"" + url_for('list_serial_ports') + "\">Check serial ports</a>",
+            refresh=10
+        )
+
+    return render_template(
+        'list.html',
+        title=f"Running on port {papaguy.port}",
+        message=f"Log last updated at {ctime(time())}",
+        list=papaguy.log,
+        refresh=3
     )
