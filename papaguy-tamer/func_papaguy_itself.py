@@ -6,7 +6,7 @@ import serial.tools.list_ports
 
 SERIAL_BAUD = 115200
 
-LOG_LENGTH = 200
+LOG_LENGTH = 100
 
 class PapaGuyItself:
 
@@ -15,22 +15,24 @@ class PapaGuyItself:
     connection = None
 
     def __init__(self):
-        self.init_state()
+        self.clear_state()
         print("PapaGuyItself constructed.")
 
-    def init_state(self):
+    def clear_state(self):
         self.port = None
         self.connection = None
+
 
     def connect(self, port):
         self.port = port
         self.connection = Serial(port, baudrate=SERIAL_BAUD, timeout=.1)
         while True:
             alive_signal = self.read_string()
-            print("Waiting for response...", str(alive_signal))
+            print("Waiting for response...")
             if len(alive_signal) > 0:
                 break
             sleep(0.2)
+        self.log = [alive_signal]
         print("PapaGuy appears to be alive.")
 
 
@@ -40,12 +42,12 @@ class PapaGuyItself:
         return self.connection.readline().decode('utf-8').strip()
 
 
-    def disconnect(self):
+    def disconnect(self) -> str:
         if self.connection is None:
-            print("Couldn't disconnect, cause nothing is connected :|")
-            return
+            return "Couldn't disconnect, cause nothing is connected :|"
         self.connection.close()
-        self.init_state()
+        self.clear_state()
+        return "Disconnected."
 
 
     def serial_log(self):

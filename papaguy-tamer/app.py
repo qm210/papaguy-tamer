@@ -17,8 +17,8 @@ known_moves = []
 def index():
     return render_template(
         'home.html',
-        title=f"papaguy-tamer v{VERSION} is running since {ctime(server_start_time)}, thanks for checking by.",
-        message=f"qm is wondering: Who the fuck implemented that time string formatting??",
+        title=f"papaguy-tamer v{VERSION} is running since {ctime(server_start_time)}",
+        message=f"qm says thanks for checking by.",
         connected=papaguy.connection is not None
     )
 
@@ -87,6 +87,12 @@ def connect_serial_with_dev(port):
     connect_serial(port=f"dev/{port}")
 
 
+@app.route('/disconnect')
+def disconnect():
+    status = papaguy.disconnect()
+    return redirect(url_for('index'))
+
+
 @app.route('/portlist')
 def list_serial_ports():
     ports = papaguy.get_portlist()
@@ -115,6 +121,7 @@ def print_serial_log():
         'list.html',
         title=f"Running on port {papaguy.port}",
         message=f"Log last updated at {ctime(time())}",
+        footer="<a href=\"" + url_for('disconnect') + "\">Disconnect</a>",
         list=papaguy.log,
         refresh=3
     )

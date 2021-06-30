@@ -7,12 +7,14 @@
     <body>
         <h2>{{ title }}</h2>
         <p>{{ message }}</p>
-        <ul>
-            <li><a href="{{ url_for('list_moves') }}">Moves</a></li>
-            <li><a href="{{ url_for('list_serial_ports') }}">Serial Ports</a></li>
+        <ul class="spaced">
             {% if connected %}
                 <li><a href="{{ url_for('print_serial_log') }}">Serial Log</a></li>
+            {% else %}
+                <li>Disconnected.</li>
             {% endif %}
+            <li><a href="{{ url_for('list_serial_ports') }}">Serial Ports</a></li>
+            <li><a href="{{ url_for('list_moves') }}">Moves</a></li>
         </ul>
     </body>
 </html>

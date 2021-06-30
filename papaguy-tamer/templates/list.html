@@ -7,8 +7,11 @@
             <meta http-equiv="refresh" content="{{refresh}}">
         {% endif %}
         <script type="text/javascript">
-            document.addEventListener("DOMContentLoaded", function(event) {
-                window.scrollTo(0, document.body.scrollHeight);
+            document.addEventListener("DOMContentLoaded", event => {
+                setTimeout(() => {
+                    console.log("scroll to", document.body.scrollHeight);
+                    window.scrollTo(0, document.body.scrollHeight);
+                }, 200);
             });
         </script>
     </head>
