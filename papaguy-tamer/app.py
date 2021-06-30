@@ -121,7 +121,7 @@ def print_serial_log():
         'list.html',
         title=f"Running on port {papaguy.port}",
         message=f"Log last updated at {ctime(time())}",
-        footer="<a href=\"" + url_for('disconnect') + "\">Disconnect</a>",
+        footer="<a href=\"" + url_for('disconnect') + "\">Disconnect</a><br/><a href=\"" + url_for('list_moves') + "\">Moves</a>",
         list=papaguy.log,
         refresh=3
     )
