@@ -3,6 +3,8 @@ body {
     background-color: black;
     font-family: "Comic Sans MS", "Comic Sans", cursive;
     margin: 2vw;
+    font-size: 1.2rem;
+    line-height: 2rem;
 }
 
 a {

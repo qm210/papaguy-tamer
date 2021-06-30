@@ -42,6 +42,7 @@ def list_moves():
 @app.route('/moves/<id>')
 def initiate_move(id=None):
     global known_moves
+    known_moves = get_available_moves() # wir gönnen uns
     try:
         existing_move = next((move for move in known_moves if move['id'] == id))
     except:

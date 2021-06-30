@@ -4,6 +4,7 @@ from threading import Timer
 
 from . import MOVES_DIR, TIME_RESOLUTION_IN_SEC, MESSAGE_TARGET_MAP
 from .utils import generate_envelope_as_bero_format
+from .func_papaguy_itself import papaguy
 
 
 def get_available_moves():
@@ -18,6 +19,7 @@ def get_available_moves():
             result.append(existing_entry)
         process_move(existing_entry, f"{directory}/{file}", name, ending)
 
+    result.sort(key=lambda a: a.get('id'))
     return result
 
 
@@ -59,7 +61,6 @@ def process_move(entry, fullpath, name, ending):
 
 
 def execute_move(move):
-    global papaguy
     print("\nexecute that move, keep track", move)
     for target in move['tracks']:
         try:
