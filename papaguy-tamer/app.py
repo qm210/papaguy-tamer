@@ -79,6 +79,8 @@ def connect_serial(port):
     thread.start()
     return f"Started on port {papaguy.port}. Have fün."
 
+
+# convenience (if any)
 @app.route('/connect')
 def connect_serial_by_query():
     port = request.args.get('port')
@@ -89,3 +91,16 @@ def connect_serial_by_query():
 @app.route('/connect/dev/<port>')
 def connect_serial_with_dev(port):
     connect_serial(port=f"dev/{port}")
+
+
+@app.route('/portlist')
+def list_serial_ports():
+    ports = papaguy.get_portlist()
+    links = ['./connect/' + port for port in ports]
+    print("LINKS:", links)
+    return render_template(
+        'list.html',
+        title="COM ports",
+        list=ports,
+        href=links
+    )

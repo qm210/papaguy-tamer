@@ -1,6 +1,7 @@
 from serial import Serial
 from time import sleep
 from struct import pack
+import serial.tools.list_ports
 
 
 SERIAL_BAUD = 115200
@@ -11,11 +12,18 @@ class PapaGuyItself:
         self.log = []
         self.port = None
         self.connection = None
+        print("PapaGuyItself constructed.")
 
 
     def connect(self, port):
         self.port = port
         self.connection = Serial(port, baudrate=SERIAL_BAUD, timeout=.1)
+        while True:
+            alive_signal = self.connection.readline()
+            print("Waiting for response...", alive_signal)
+            if len(alive_signal) > 0:
+                break
+        print("PapaGuy appears to be alive.")
 
 
     def serial_log(self):
@@ -33,6 +41,11 @@ class PapaGuyItself:
             print(f"Öhm. Cannot send when connection is not initialized. Do pls.")
             return
         self.connection.write(message)
+
+
+    # @staticmethod
+    def get_portlist(self):
+        return [port.device for port in serial.tools.list_ports.comports()]
 
 
 papaguy = PapaGuyItself()

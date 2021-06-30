@@ -9,7 +9,13 @@
         <p>{{ message }}</p>
         <ul style="list-style:none;">
             {% for item in list %}
-                <li>{{ item }}</li>
+                <li>
+                    {% if href is defined %}
+                        <a href="{{href[loop.index0]}}">{{item}}</a>
+                    {% else %}
+                        {{ item }}
+                    {% endif %}
+                </li>
             {% endfor %}
         </ul>
     </body>
