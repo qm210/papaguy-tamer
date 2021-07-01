@@ -45,14 +45,17 @@ class PapaGuyItself:
     def clear_connection(self):
         self.port = None
         self.connection = None
+        self.clear_current_move()
+
+
+    def clear_current_move(self):
         self.moves.current = None
-        print("CLEAR CONNECTION CALLED", self.moves.current)
         for timer in self.current_timers:
             timer.cancel()
         self.current_timers = []
+        print("CLEAR TO EXECUTE NEXT MOVE.")
 
 
-    # could be @staticmethod, I guess
     def get_portlist(self):
         return [port.device for port in serial.tools.list_ports.comports()]
 
@@ -179,9 +182,6 @@ class PapaGuyItself:
 
 
     def send_message(self, action, payload = 0) -> bool:
-        print("HM", action, type(action), payload, type(payload))
-        print("WELL...", pack("B", action))
-        print("AND...", pack(">H", payload))
         message = bytearray(pack("B", action) + pack(">H", payload))
         print("SEND MESSAGE", message)
         if self.connection is None:
@@ -234,7 +234,7 @@ class PapaGuyItself:
                 max_length_sec = max(max_length_sec, time_sec)
 
         # at the very end, reset the state so a new move can be started
-        Timer(max_length_sec + TIME_RESOLUTION_IN_SEC, self.clear_connection).start()
+        Timer(max_length_sec + TIME_RESOLUTION_IN_SEC, self.clear_current_move).start()
         self.moves.remember_last_ids.append(move['id'])
         return True
 
