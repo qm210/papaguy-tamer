@@ -1,10 +1,8 @@
 import os
 import json
-from threading import Timer
 
-from . import MOVES_DIR, TIME_RESOLUTION_IN_SEC, MESSAGE_TARGET_MAP
+from . import MOVES_DIR
 from .utils import generate_envelope_as_bero_format
-from .func_papaguy_itself import papaguy
 
 
 def get_available_moves():
@@ -58,23 +56,5 @@ def process_move(entry, fullpath, name, ending):
         else 'move only' if 'move' in entry \
         else 'sample only' if 'sample' in entry \
         else '??'
-
-
-def execute_move(move):
-    print("\nexecute that move, keep track", move)
-    for target in move['tracks']:
-        try:
-            target_name = MESSAGE_TARGET_MAP[target['name']]
-        except KeyError:
-            print("!! Target name is not given in MESSAGE_NAME_MAP!! papaguy won't understand it!", target['name'], MESSAGE_TARGET_MAP)
-            return
-
-        print("TARGET NAME:", target['name'], target_name)
-        for point in target['automationtimepoints']:
-            time_sec = point['time'] * TIME_RESOLUTION_IN_SEC
-            value = point['value']
-            print(time_sec, value)
-            Timer(time_sec, papaguy.serial_send, args=(target_name, value))
-    print()
 
 

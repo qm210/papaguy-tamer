@@ -3,14 +3,14 @@ from time import time, ctime
 from threading import Thread
 import os
 
-from . import VERSION
+from . import VERSION, GENERAL_MESSAGE
 from .func_papaguy_itself import papaguy
-from .func_move import get_available_moves, execute_move
 from .utils import play_sound
+from .batch import batch_jobs
+
 
 app = Flask(__name__)
 server_start_time = time()
-known_moves = []
 
 
 @app.route('/')
@@ -30,8 +30,7 @@ def favicon():
 
 @app.route('/moves')
 def list_moves():
-    global known_moves
-    known_moves = get_available_moves()
+    known_moves = papaguy.load_moves_from_disk()
     return render_template(
         'moves.html',
         title="Moves",
@@ -42,25 +41,34 @@ def list_moves():
 
 @app.route('/moves/<id>')
 def initiate_move(id=None):
-    global known_moves
-    known_moves = get_available_moves() # wir gönnen uns
+    known_moves = papaguy.load_moves_from_disk() # wir gönnen uns, statt einfach liste vom cache zu nehmen
     try:
         existing_move = next((move for move in known_moves if move['id'] == id))
     except:
         return f"Move \"{id}\" not found. Maybe refresh the main 'moves' page."
 
+    this_worked = False
     if 'sample' in existing_move:
-        # block=False cannot be used on this platform yet
         Thread(target=play_sound, args=(existing_move['sample'],), daemon=True).start()
+        this_worked = True
 
     if 'env' in existing_move:
         pass
 
     if 'move' in existing_move:
-        thread = Thread(target=execute_move, args=(existing_move['move'],))
-        thread.start()
+        this_worked = papaguy.execute_move(existing_move['move'])
 
-    return f"Executing {existing_move['id']} [{existing_move['type']}]"
+    if this_worked:
+        return f"Executing {existing_move['id']} [{existing_move['type']}]"
+    else:
+        return f"Didn't work. Maybe there is still a move ongoing?"
+
+
+@app.route('/panic')
+def cancel_all_moves():
+    papaguy.clear_connection()
+    # TODO: might send some reset information to the microcontroller
+    return f"Cleared PapaGuy movement. Hope that saved the world."
 
 
 @app.route('/connect/<port>')
@@ -68,10 +76,11 @@ def connect_serial(port):
     if papaguy.connection is not None:
         return print_serial_log()
 
-    papaguy.connect(port)
-    thread = Thread(target=papaguy.serial_log)
-    thread.start()
-    return redirect(url_for('print_serial_log'))
+    if papaguy.connect(port):
+        Thread(target=papaguy.communicate).start()
+        return redirect(url_for('print_serial_log'))
+    else:
+        return redirect(url_for('index'))
 
 
 # convenience (if any)
@@ -79,17 +88,17 @@ def connect_serial(port):
 def connect_serial_by_query():
     port = request.args.get('port')
     print("QUERY:", request.args, port)
-    connect_serial(port)
+    return connect_serial(port)
 
 # linux compatibility
 @app.route('/connect/dev/<port>')
 def connect_serial_with_dev(port):
-    connect_serial(port=f"dev/{port}")
+    return connect_serial(port=f"dev/{port}")
 
 
 @app.route('/disconnect')
 def disconnect():
-    status = papaguy.disconnect()
+    papaguy.disconnect()
     return redirect(url_for('index'))
 
 
@@ -121,7 +130,21 @@ def print_serial_log():
         'list.html',
         title=f"Running on port {papaguy.port}",
         message=f"Log last updated at {ctime(time())}",
-        footer="<a href=\"" + url_for('disconnect') + "\">Disconnect</a><br/><a href=\"" + url_for('list_moves') + "\">Moves</a>",
+        footer="<a href=\"" + url_for('disconnect') + "\">Disconnect</a>"
+            + "<br/><a href=\"" + url_for('list_moves') + "\">Moves</a>"
+            + "<br/><a href=\"" + url_for('emulate_radar_detection') + "\">Emulate Radar</a>",
         list=papaguy.log,
         refresh=3
     )
+
+
+@app.route('/emulateradar')
+def emulate_radar_detection():
+    papaguy.send_message(GENERAL_MESSAGE.EMULATE_RADAR)
+    return redirect(url_for('print_serial_log'))
+
+
+@app.route('/precalc')
+def force_batch_jobs():
+    batch_jobs(True)
+    return "Finished Forced Precalc."

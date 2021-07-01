@@ -6,8 +6,8 @@ from . import MOVES_DIR
 from .utils import generate_envelope_as_bero_format
 
 
-def batch_jobs():
-    batch_precalc_wav_envelopes()
+def batch_jobs(force = False):
+    batch_precalc_wav_envelopes(force)
 
 
 def batch_precalc_wav_envelopes(force = False):
