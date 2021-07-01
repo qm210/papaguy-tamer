@@ -240,7 +240,6 @@ class PapaGuyItself:
         except IndexError:
             print("LIST EMPTY; CANNOT CHOOSE.", list)
             return
-        print("RANDOM CHOICE:", chosen_from_nonrecent)
         self.execute_move(chosen_from_nonrecent)
 
 
