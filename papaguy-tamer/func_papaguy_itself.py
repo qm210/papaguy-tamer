@@ -144,7 +144,7 @@ class PapaGuyItself:
 
 
     @staticmethod
-    def interpolate_radar_detection(metrics):
+    def interpolate_radar_direction(metrics):
         strongest_radar = -1
         second_radar = -1
         for radar, value in enumerate(metrics):
