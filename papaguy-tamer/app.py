@@ -93,7 +93,7 @@ def connect_serial_by_query():
 # linux compatibility
 @app.route('/connect/dev/<port>')
 def connect_serial_with_dev(port):
-    return connect_serial(port=f"dev/{port}")
+    return connect_serial(port=f"/dev/{port}")
 
 
 @app.route('/disconnect')
