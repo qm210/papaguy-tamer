@@ -85,6 +85,7 @@ class PapaGuyItself:
         if self.connection is None:
             return ""
         line = self.connection.readline()
+        print("RAW:", line)
         try:
             return line.decode('utf-8').strip()
         except UnicodeDecodeError:
