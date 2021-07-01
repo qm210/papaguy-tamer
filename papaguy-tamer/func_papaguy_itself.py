@@ -11,7 +11,7 @@ from .func_moves import get_available_moves
 
 SERIAL_BAUD = 115200
 
-WAITING_FOR_RESPONSE_ATTEMPTS = 50
+WAITING_FOR_RESPONSE_ATTEMPTS = 20
 
 SECONDS_TO_IDLE_AT_LEAST = 3
 SECONDS_TO_IDLE_AT_MOST = 10
@@ -35,8 +35,8 @@ class PapaGuyItself:
 
 
     def __init__(self):
+        self.moves = self.Moves()
         self.clear_connection()
-        self.moves = PapaGuyItself.Moves()
         self.choose_next_idle_seconds()
         print("PapaGuyItself constructed.")
 
@@ -57,16 +57,17 @@ class PapaGuyItself:
 
     def connect(self, port) -> bool:
         self.port = port
-        self.connection = Serial(port, baudrate=SERIAL_BAUD, timeout=.5)
+        self.connection = Serial(port, baudrate=SERIAL_BAUD, timeout=.1)
         attempt = 0
-        while attempt < WAITING_FOR_RESPONSE_ATTEMPTS:
+        while attempt < WAITING_FOR_RESPONSE_ATTEMPTS and self.connection is not None:
             alive_signal = self.read_string()
             print("Waiting for response...", attempt, " / ", WAITING_FOR_RESPONSE_ATTEMPTS)
             if len(alive_signal) > 0:
                 break
             sleep(0.5)
             attempt += 1
-        if len(alive_signal) == 0:
+
+        if len(alive_signal) == 0 or self.connection is None:
             self.log.clear()
             self.log.append("Timeout. No Response")
             self.disconnect()
@@ -158,9 +159,10 @@ class PapaGuyItself:
 
 
     def maybe_move_out_of_boredom(self):
-        if time() - self.last_time_when_idle_triggered > self.next_idle_seconds:
-            self.execute_some_move_from(self.moves.on_idle)
+        if time() - self.moves.last_time_when_idle_triggered > self.next_idle_seconds:
             self.choose_next_idle_seconds()
+            print("WE MOVE OUT OF BOREDOM AND WAIT", self.next_idle_seconds)
+            self.execute_some_move_from(self.moves.on_idle)
 
 
     def choose_next_idle_seconds(self):
@@ -215,8 +217,9 @@ class PapaGuyItself:
 
 
     def execute_some_move_from(self, list):
-        chosen_from_older_moves = choice([move for move in list if move['id'] not in self.moves.remember_last_ids])
-        self.execute(chosen_from_older_moves)
+        chosen_from_nonrecent = choice([move for move in list if move['id'] not in self.moves.remember_last_ids])
+        print("RANDOM CHOICE:", chosen_from_nonrecent)
+        self.execute(chosen_from_nonrecent)
 
 
 papaguy = PapaGuyItself()
