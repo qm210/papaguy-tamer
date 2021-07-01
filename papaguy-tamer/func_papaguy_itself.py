@@ -1,3 +1,4 @@
+from math import e
 from serial import Serial
 from time import sleep, time
 from struct import pack
@@ -229,8 +230,12 @@ class PapaGuyItself:
                 self.current_timers.append(timer)
                 max_length_sec = max(max_length_sec, time_sec)
 
+        max_length_sec += TIME_RESOLUTION_IN_SEC
         # at the very end, reset the state so a new move can be started
-        Timer(max_length_sec + TIME_RESOLUTION_IN_SEC, self.clear_current_move).start()
+        if 'env' in move:
+            self.current_timers.append(Timer(max_length_sec, self.send_message, args=(MESSAGE_MAP['ENVELOPE'], 0)))
+
+        Timer(max_length_sec, self.clear_current_move).start()
         self.moves.remember_last_ids.append(move['id'])
         return True
 
