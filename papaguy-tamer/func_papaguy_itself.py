@@ -1,7 +1,7 @@
 from serial import Serial
 from time import sleep, time
 from struct import pack
-from threading import Timer
+from threading import Timer, Thread
 from collections import deque
 from random import choice, uniform
 import serial.tools.list_ports
@@ -59,6 +59,9 @@ class PapaGuyItself:
         self.port = port
         print("ATTEMPT CONNECTION AT", self.port)
         self.connection = Serial(port, baudrate=SERIAL_BAUD, timeout=.1)
+
+        Thread(self.load_moves_from_disk).start() # we gönn ourselves some moves
+
         attempt = 0
         while attempt < WAITING_FOR_RESPONSE_ATTEMPTS and self.connection is not None:
             self.send_message(GENERAL_MESSAGE.ARE_YOU_ALIVE)
@@ -78,6 +81,7 @@ class PapaGuyItself:
         self.log.clear()
         self.log.append(alive_signal)
         print("PapaGuy appears to be alive.")
+
         return True
 
 
