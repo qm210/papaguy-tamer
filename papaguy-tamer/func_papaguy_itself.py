@@ -225,13 +225,13 @@ class PapaGuyItself:
             for point in target['automationtimepoints']:
                 time_sec = point['time'] * TIME_RESOLUTION_IN_SEC
                 value = point['value']
-                print(time_sec, value)
                 timer = Timer(time_sec, self.send_message, args=(target_name, value))
+                timer.start()
                 self.current_timers.append(timer)
                 max_length_sec = max(max_length_sec, time_sec)
 
         # at the very end, reset the state so a new move can be started
-        Timer(max_length_sec + TIME_RESOLUTION_IN_SEC, self.clear_connection)
+        Timer(max_length_sec + TIME_RESOLUTION_IN_SEC, self.clear_connection).start()
         self.moves.remember_last_ids.append(move['id'])
         return True
 
