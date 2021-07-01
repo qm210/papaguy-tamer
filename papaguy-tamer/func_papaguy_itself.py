@@ -46,6 +46,7 @@ class PapaGuyItself:
         self.port = None
         self.connection = None
         self.moves.current = None
+        print("CLEAR CONNECTION CALLED", self.moves.current)
         for timer in self.current_timers:
             timer.cancel()
         self.current_timers = []
