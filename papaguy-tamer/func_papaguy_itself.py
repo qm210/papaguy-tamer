@@ -15,8 +15,8 @@ SERIAL_BAUD = 115200
 
 WAITING_FOR_RESPONSE_ATTEMPTS = 20
 
-SECONDS_TO_IDLE_AT_LEAST = 3
-SECONDS_TO_IDLE_AT_MOST = 10
+SECONDS_TO_IDLE_AT_LEAST = 20
+SECONDS_TO_IDLE_AT_MOST = 60
 
 MOVEMENT_OFFSET_IN_SECONDS = .5
 
@@ -34,7 +34,7 @@ class PapaGuyItself:
         on_idle = []
         remember_last_ids = deque([], 10)
         next_idle_seconds = 0
-        last_time_when_idle_triggered = 0
+        last_move_executed_at = 0
 
 
     def __init__(self):
@@ -170,11 +170,10 @@ class PapaGuyItself:
 
 
     def maybe_move_out_of_boredom(self):
-        if time() - self.moves.last_time_when_idle_triggered > self.next_idle_seconds:
+        if time() - self.moves.last_move_executed_at > self.next_idle_seconds:
             self.choose_next_idle_seconds()
             print("WE MOVE OUT OF BOREDOM AND WAIT", self.next_idle_seconds)
             self.execute_some_move_from(self.moves.on_idle)
-            self.moves.last_time_when_idle_triggered = time()
 
 
     def choose_next_idle_seconds(self):
@@ -213,6 +212,9 @@ class PapaGuyItself:
         if 'env' in move:
             target_list.append(move['env'])
 
+        self.moves.remember_last_ids.append(move['id'])
+        self.moves.last_move_executed_at = time()
+
         max_length_sec = 0
         for target in target_list:
             try:
@@ -236,7 +238,6 @@ class PapaGuyItself:
             self.current_timers.append(Timer(max_length_sec, self.send_message, args=(MESSAGE_MAP['ENVELOPE'], 0)))
 
         Timer(max_length_sec, self.clear_current_move).start()
-        self.moves.remember_last_ids.append(move['id'])
         return True
 
 
