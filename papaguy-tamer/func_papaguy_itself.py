@@ -181,9 +181,9 @@ class PapaGuyItself:
 
     def send_message(self, action, payload = 0) -> bool:
         message = bytearray(pack("B", action) + pack(">H", payload))
-        print("SEND MESSAGE", message)
+        print("SEND MESSAGE", action, payload)
         if self.connection is None:
-            print(f"Öhm. Cannot send when connection is not initialized. Do pls.")
+            print(f"Connection is not open (anymore?)")
             return False
         self.connection.write(message)
         return True
@@ -198,7 +198,6 @@ class PapaGuyItself:
 
 
     def execute_move(self, move) -> bool:
-        print("WOULD MOVE BUT", self.moves.current)
         if self.moves.current is not None:
             return False
 
@@ -211,8 +210,6 @@ class PapaGuyItself:
         target_list = move.get('tracks', [])
         if 'env' in move:
             target_list.append(move['env'])
-
-        print("COMBINED TARGET_LIST", target_list)
 
         max_length_sec = 0
         for target in target_list:
