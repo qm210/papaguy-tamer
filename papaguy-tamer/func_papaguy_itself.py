@@ -135,7 +135,7 @@ class PapaGuyItself:
             return
 
         if action == "RADAR":
-            print("PARSE", action, payload, payload.split(';'))
+            print("PARSE", action, payload)
             radar_metrics = [int(part) for part in payload.split(';') if part != '']
             if len(RADAR_DIRECTION) != len(radar_metrics):
                 raise ValueError("Dimension of radar metrics have to match RADAR_DIRECTION!")
@@ -236,7 +236,9 @@ class PapaGuyItself:
         max_length_sec += TIME_RESOLUTION_IN_SEC
         # at the very end, reset the state so a new move can be started
         if 'env' in move:
-            self.current_timers.append(Timer(max_length_sec, self.send_message, args=(MESSAGE_MAP['ENVELOPE'], 0)))
+            reset_timer = Timer(max_length_sec, self.send_message, args=(MESSAGE_MAP['ENVELOPE'], 0))
+            reset_timer.start()
+            self.current_timers.append(reset_timer)
 
         Timer(max_length_sec, self.clear_current_move).start()
         return True
