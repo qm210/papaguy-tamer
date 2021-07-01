@@ -139,7 +139,7 @@ class PapaGuyItself:
             radar_metrics = [int(part) for part in payload.split(';') if part != '']
             if len(RADAR_DIRECTION) != len(radar_metrics):
                 raise ValueError("Dimension of radar metrics have to match RADAR_DIRECTION!")
-            direction = PapaGuyItself.interpolate_strongest_direction(radar_metrics)
+            direction = PapaGuyItself.interpolate_radar_direction(radar_metrics)
             self.handle_radar_detection(direction)
 
 
