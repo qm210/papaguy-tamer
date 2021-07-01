@@ -11,7 +11,7 @@ def generate_envelope_as_bero_format(wavfile):
             result = gen_envelope(wavfile, TIME_RESOLUTION_IN_SEC)
     return {
         'name': 'ENVELOPE',
-        'automationtimepoint': [
+        'automationtimepoints': [
             {'time': step, 'value': env} for (step, env) in enumerate(result)
         ]
     }
