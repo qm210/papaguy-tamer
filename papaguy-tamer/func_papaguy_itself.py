@@ -61,6 +61,7 @@ class PapaGuyItself:
         self.connection = Serial(port, baudrate=SERIAL_BAUD, timeout=.1)
         attempt = 0
         while attempt < WAITING_FOR_RESPONSE_ATTEMPTS and self.connection is not None:
+            self.connection.write(GENERAL_MESSAGE.ARE_YOU_ALIVE)
             alive_signal = self.read_string()
             print("Waiting for response...", attempt, " / ", WAITING_FOR_RESPONSE_ATTEMPTS)
             if len(alive_signal) > 0:
