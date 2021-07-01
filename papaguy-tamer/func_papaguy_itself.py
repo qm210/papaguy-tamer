@@ -8,6 +8,7 @@ import serial.tools.list_ports
 
 from . import GENERAL_MESSAGE, TIME_RESOLUTION_IN_SEC, MESSAGE_MAP, RADAR_DIRECTION
 from .func_moves import get_available_moves
+from .utils import play_sound
 
 SERIAL_BAUD = 115200
 
@@ -200,7 +201,9 @@ class PapaGuyItself:
 
         print("EXECUTE MOVE:", move['id'])
         self.moves.current = move
-        max_length_sec = 0
+
+        if 'sample' in move:
+            Thread(target=play_sound, args=(move['sample'],), daemon=True).start()
 
         target_list = move.get('tracks', [])
         if 'env' in move:
@@ -208,6 +211,7 @@ class PapaGuyItself:
 
         print("COMBINED TARGET_LIST", target_list)
 
+        max_length_sec = 0
         for target in target_list:
             try:
                 target_name = MESSAGE_MAP[target['name']]

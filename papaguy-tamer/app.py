@@ -5,7 +5,6 @@ import os
 
 from . import VERSION, GENERAL_MESSAGE
 from .func_papaguy_itself import papaguy
-from .utils import play_sound
 from .batch import batch_jobs
 
 
@@ -47,18 +46,7 @@ def initiate_move(id=None):
     except:
         return f"Move \"{id}\" not found. Maybe refresh the main 'moves' page."
 
-    this_worked = False
-    if 'sample' in existing_move:
-        Thread(target=play_sound, args=(existing_move['sample'],), daemon=True).start()
-        this_worked = True
-
-    if 'env' in existing_move:
-        pass
-
-    if 'move' in existing_move:
-        this_worked = papaguy.execute_move(existing_move['move'])
-
-    if this_worked:
+    if papaguy.execute_move(existing_move['move']):
         return f"Executing {existing_move['id']} [{existing_move['type']}]"
     else:
         return f"Didn't work. Maybe there is still a move ongoing?"
