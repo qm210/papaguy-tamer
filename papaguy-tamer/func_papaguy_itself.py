@@ -17,6 +17,7 @@ WAITING_FOR_RESPONSE_ATTEMPTS = 20
 SECONDS_TO_IDLE_AT_LEAST = 3
 SECONDS_TO_IDLE_AT_MOST = 10
 
+MOVEMENT_OFFSET_IN_SECONDS = .5
 
 class PapaGuyItself:
 
@@ -221,7 +222,7 @@ class PapaGuyItself:
 
             print("TARGET NAME:", target['name'], target_name)
             for point in target['automationtimepoints']:
-                time_sec = point['time'] * TIME_RESOLUTION_IN_SEC
+                time_sec = point['time'] * TIME_RESOLUTION_IN_SEC + MOVEMENT_OFFSET_IN_SECONDS
                 value = int(point['value'] * MESSAGE_NORM)
                 timer = Timer(time_sec, self.send_message, args=(target_name, value))
                 timer.start()
