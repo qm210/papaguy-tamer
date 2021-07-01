@@ -136,7 +136,7 @@ class PapaGuyItself:
 
         if action == "RADAR":
             print("PARSE", action, payload, payload.split(';'))
-            radar_metrics = [int(part) for part in payload.split(';')]
+            radar_metrics = [int(part) for part in payload.split(';') if part != '']
             if len(RADAR_DIRECTION) != len(radar_metrics):
                 raise ValueError("Dimension of radar metrics have to match RADAR_DIRECTION!")
             direction = PapaGuyItself.interpolate_strongest_direction(radar_metrics)
@@ -195,7 +195,7 @@ class PapaGuyItself:
         self.moves.all = get_available_moves()
         self.moves.on_radar = [move for move in self.moves.all if move['id'][0].isdigit()]
         self.moves.on_idle = [move for move in self.moves.all if move not in self.moves.on_radar]
-        print("LOADED MOVES... ", len(self.moves.on_radar), " ", len(self.moves.on_idle))
+        print("LOADED MOVES... ON_RADAR: ", len(self.moves.on_radar), " ON_IDLE: ", len(self.moves.on_idle))
         return self.moves.all
 
 
