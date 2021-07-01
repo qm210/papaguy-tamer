@@ -18,7 +18,7 @@ WAITING_FOR_RESPONSE_ATTEMPTS = 20
 SECONDS_TO_IDLE_AT_LEAST = 20
 SECONDS_TO_IDLE_AT_MOST = 60
 
-MOVEMENT_OFFSET_IN_SECONDS = .5
+MOVEMENT_OFFSET_IN_SECONDS = 0.1
 
 class PapaGuyItself:
 
@@ -194,7 +194,7 @@ class PapaGuyItself:
         self.moves.all = get_available_moves()
         self.moves.on_radar = [move for move in self.moves.all if move['id'][0].isdigit()]
         self.moves.on_idle = [move for move in self.moves.all if move not in self.moves.on_radar]
-        print("LOADED MOVES... THAT MANY:", len(self.moves.all), len(self.moves.on_radar), len(self.moves.on_idle))
+        print("LOADED MOVES... ", len(self.moves.on_radar), " ", len(self.moves.on_idle))
         return self.moves.all
 
 
