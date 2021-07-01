@@ -117,7 +117,7 @@ class PapaGuyItself:
         while self.connection is not None:
             self.maybe_move_out_of_boredom()
 
-            sleep(0.5)
+            sleep(0.2)
             data = self.read_string()
             if len(data) == 0:
                 continue
@@ -135,6 +135,7 @@ class PapaGuyItself:
             return
 
         if action == "RADAR":
+            print("PARSE", action, payload, payload.split(';'))
             radar_metrics = [int(part) for part in payload.split(';')]
             if len(RADAR_DIRECTION) != len(radar_metrics):
                 raise ValueError("Dimension of radar metrics have to match RADAR_DIRECTION!")
