@@ -179,6 +179,9 @@ class PapaGuyItself:
 
 
     def send_message(self, action, payload = 0) -> bool:
+        print("HM", action, type(action), payload, type(payload))
+        print("WELL...", pack("B", action))
+        print("AND...", pack(">H", payload))
         message = bytearray(pack("B", action) + pack(">H", payload))
         print("SEND MESSAGE", message)
         if self.connection is None:
@@ -192,7 +195,7 @@ class PapaGuyItself:
         self.moves.all = get_available_moves()
         self.moves.on_radar = [move for move in self.moves.all if move['id'][0].isdigit()]
         self.moves.on_idle = [move for move in self.moves.all if move not in self.moves.on_radar]
-        print("LOADED:", self.moves.all, len(self.moves.all), len(self.moves.on_radar), len(self.moves.on_idle))
+        print("LOADED MOVES... THAT MANY:", len(self.moves.all), len(self.moves.on_radar), len(self.moves.on_idle))
         return self.moves.all
 
 
