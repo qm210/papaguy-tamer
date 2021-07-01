@@ -196,6 +196,7 @@ class PapaGuyItself:
 
 
     def execute_move(self, move) -> bool:
+        print("WOULD MOVE BUT", self.moves.current)
         if self.moves.current is not None:
             return False
 
