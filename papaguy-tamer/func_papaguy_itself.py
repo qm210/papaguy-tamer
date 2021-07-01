@@ -121,9 +121,7 @@ class PapaGuyItself:
                 continue
 
             self.interpret_message(data)
-
             self.log.append(data)
-            print("DATA:", list(self.log))
 
         print("papaguy.communicate() stopped, because connection went down")
 
