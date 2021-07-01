@@ -170,6 +170,7 @@ class PapaGuyItself:
             self.choose_next_idle_seconds()
             print("WE MOVE OUT OF BOREDOM AND WAIT", self.next_idle_seconds)
             self.execute_some_move_from(self.moves.on_idle)
+            self.moves.last_time_when_idle_triggered = time()
 
 
     def choose_next_idle_seconds(self):
