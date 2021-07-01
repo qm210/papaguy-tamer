@@ -60,7 +60,7 @@ class PapaGuyItself:
         print("ATTEMPT CONNECTION AT", self.port)
         self.connection = Serial(port, baudrate=SERIAL_BAUD, timeout=.1)
 
-        Thread(self.load_moves_from_disk).start() # we gönn ourselves some moves
+        Thread(target=self.load_moves_from_disk).start() # we gönn ourselves some moves
 
         attempt = 0
         while attempt < WAITING_FOR_RESPONSE_ATTEMPTS and self.connection is not None:
