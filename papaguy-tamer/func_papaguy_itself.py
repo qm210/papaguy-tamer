@@ -6,7 +6,7 @@ from collections import deque
 from random import choice, uniform
 import serial.tools.list_ports
 
-from . import GENERAL_MESSAGE, TIME_RESOLUTION_IN_SEC, MESSAGE_MAP, RADAR_DIRECTION
+from . import GENERAL_MESSAGE, TIME_RESOLUTION_IN_SEC, MESSAGE_MAP, RADAR_DIRECTION, MESSAGE_NORM
 from .func_moves import get_available_moves
 from .utils import play_sound
 
@@ -161,7 +161,7 @@ class PapaGuyItself:
 
 
     def handle_radar_detection(self, direction):
-        normalized_direction = int(1023 * max(0, min(180, direction)) / 180)
+        normalized_direction = int(MESSAGE_NORM * max(0, min(180, direction)) / 180)
         self.send_message(GENERAL_MESSAGE.ROTATE_HEAD, normalized_direction)
         self.execute_some_move_from(self.moves.on_radar)
 
@@ -227,7 +227,7 @@ class PapaGuyItself:
             print("TARGET NAME:", target['name'], target_name)
             for point in target['automationtimepoints']:
                 time_sec = point['time'] * TIME_RESOLUTION_IN_SEC
-                value = point['value']
+                value = int(point['value'] * MESSAGE_NORM)
                 timer = Timer(time_sec, self.send_message, args=(target_name, value))
                 timer.start()
                 self.current_timers.append(timer)
