@@ -65,7 +65,7 @@ def connect_serial(port):
         return print_serial_log()
 
     if papaguy.connect(port):
-        Thread(target=papaguy.communicate).start()
+        Thread(target=papaguy.communicate, daemon=True).start()
         return redirect(url_for('print_serial_log'))
     else:
         return redirect(url_for('index'))
