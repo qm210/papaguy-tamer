@@ -17,7 +17,6 @@ def generate_envelope_as_bero_format(wavfile):
     }
 
 def play_sound(wavefile):
-    wave_obj = WaveObject.from_wave_file(wavefile)
-    wave_obj.play()
-    wave_obj.wait_done()
+    playing_object = WaveObject.from_wave_file(wavefile).play()
+    playing_object.wait_done()
 
