@@ -61,7 +61,7 @@ class PapaGuyItself:
         self.connection = Serial(port, baudrate=SERIAL_BAUD, timeout=.1)
         attempt = 0
         while attempt < WAITING_FOR_RESPONSE_ATTEMPTS and self.connection is not None:
-            self.connection.write(GENERAL_MESSAGE.ARE_YOU_ALIVE)
+            self.send_message(GENERAL_MESSAGE.ARE_YOU_ALIVE)
             alive_signal = self.read_string()
             print("Waiting for response...", attempt, " / ", WAITING_FOR_RESPONSE_ATTEMPTS)
             if len(alive_signal) > 0:
@@ -220,7 +220,11 @@ class PapaGuyItself:
 
 
     def execute_some_move_from(self, list):
-        chosen_from_nonrecent = choice([move for move in list if move['id'] not in self.moves.remember_last_ids])
+        try:
+            chosen_from_nonrecent = choice([move for move in list if move['id'] not in self.moves.remember_last_ids])
+        except IndexError:
+            print("LIST EMPTY; CANNOT CHOOSE.", list)
+            return
         print("RANDOM CHOICE:", chosen_from_nonrecent)
         self.execute(chosen_from_nonrecent)
 
