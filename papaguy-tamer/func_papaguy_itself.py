@@ -198,10 +198,17 @@ class PapaGuyItself:
         if self.moves.current is not None:
             return False
 
-        print("EXECUTE MOVE:", move)
+        print("EXECUTE MOVE:", move['id'])
         self.moves.current = move
         max_length_sec = 0
-        for target in move['tracks']:
+
+        target_list = move.get('tracks', [])
+        if 'env' in move:
+            target_list.append(move['env'])
+
+        print("COMBINED TARGET_LIST", target_list)
+
+        for target in target_list:
             try:
                 target_name = MESSAGE_MAP[target['name']]
             except KeyError:
