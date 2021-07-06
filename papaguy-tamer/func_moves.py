@@ -9,7 +9,11 @@ def get_available_moves():
     directory = MOVES_DIR
     result = []
     for file in os.listdir(directory):
-        [name, ending] = file.split(".")
+        try:
+            [name, ending] = file.split(".")
+        except ValueError:
+            continue
+
         try:
             existing_entry = next((that for that in result if that['id'] == name))
         except StopIteration:

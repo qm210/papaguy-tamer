@@ -203,7 +203,7 @@ class PapaGuyItself:
         if self.moves.current is not None:
             return False
 
-        print("EXECUTE MOVE:", move['id'])
+        print("EXECUTE MOVE:", move)
         self.moves.current = move
 
         if 'sample' in move:

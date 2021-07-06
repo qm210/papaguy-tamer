@@ -46,7 +46,7 @@ def initiate_move(id=None):
     except:
         return f"Move \"{id}\" not found. Maybe refresh the main 'moves' page."
 
-    if papaguy.execute_move(existing_move['move']):
+    if papaguy.execute_move(existing_move):
         return f"Executing {existing_move['id']} [{existing_move['type']}]"
     else:
         return f"Didn't work. Maybe there is still a move ongoing?"
