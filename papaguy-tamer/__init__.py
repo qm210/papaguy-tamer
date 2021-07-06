@@ -1,4 +1,4 @@
-VERSION = "0.9"
+VERSION = "0.999"
 PACKAGE_NAME = "papaguy-tamer"
 PRODUCTION = True
 
@@ -9,14 +9,20 @@ TIME_RESOLUTION_IN_SEC = 0.05
 
 # track.name from BeRos array will be mapped to a short integer ("target") for the papaguy-itself
 MESSAGE_MAP = {
-    'head': 1,
-    'wing_left': 2,
-    'wing_right': 3,
+    'body_tilt': 1,
+    'wings': 2,
+    'head_tilt': 3,
+    'head_rotate': 4,
+    'beak': 5,
+
     'ENVELOPE': 17,
+
+    'eyes': 20,
+    'fog': 23,
 }
 
 class GENERAL_MESSAGE:
-    ROTATE_HEAD = 1
+    ROTATE_HEAD = 4 # this is different from the other servos, because direction-dependent (reacts to radars)
     EMULATE_RADAR = 101
     ARE_YOU_ALIVE = 63
     DEACTIVATE = 125
