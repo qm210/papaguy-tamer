@@ -65,7 +65,7 @@ class PapaGuyItself:
     def connect(self, port) -> bool:
         self.port = port
         print("ATTEMPT CONNECTION AT", self.port)
-        self.connection = Serial(port, baudrate=SERIAL_BAUD, timeout=.1)
+        self.connection = Serial(port, baudrate=SERIAL_BAUD)
 
         Thread(target=self.load_moves_from_disk).start() # we gönn ourselves some moves
 
