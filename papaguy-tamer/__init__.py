@@ -1,4 +1,4 @@
-VERSION = "0.999"
+VERSION = "0.9999"
 PACKAGE_NAME = "papaguy-tamer"
 PRODUCTION = True
 
