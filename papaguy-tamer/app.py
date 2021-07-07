@@ -47,9 +47,11 @@ def initiate_move(id=None):
         return f"Move \"{id}\" not found. Maybe refresh the main 'moves' page."
 
     if papaguy.execute_move(existing_move):
-        return f"Executing {existing_move['id']} [{existing_move['type']}]"
+        papaguy.reset_log(f"Executing {existing_move['id']} [{existing_move['type']}]")
     else:
-        return f"Didn't work. Maybe there is still a move ongoing?"
+        papaguy.reset_log("Didn't work. Maybe there is still a move ongoing?")
+
+    return redirect(url_for('print_serial_log'))
 
 
 @app.route('/panic')
@@ -62,7 +64,7 @@ def cancel_all_moves():
 @app.route('/connect/<port>')
 def connect_serial(port):
     if papaguy.connection is not None:
-        return print_serial_log()
+        return redirect(url_for('print_serial_log'))
 
     if papaguy.connect(port):
         Thread(target=papaguy.communicate, daemon=True).start()

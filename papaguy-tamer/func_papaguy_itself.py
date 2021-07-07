@@ -58,6 +58,12 @@ class PapaGuyItself:
         print("CLEAR TO EXECUTE NEXT MOVE.")
 
 
+    def reset_log(self, single_message = ""):
+        self.log.clear()
+        if single_message != "":
+            self.log.append(single_message)
+
+
     def get_portlist(self):
         return [port.device for port in serial.tools.list_ports.comports()]
 
@@ -80,13 +86,11 @@ class PapaGuyItself:
             attempt += 1
 
         if len(alive_signal) == 0 or self.connection is None:
-            self.log.clear()
-            self.log.append("Timeout. No Response")
+            self.reset_log("Timeout. No Response")
             self.disconnect()
             return False
 
-        self.log.clear()
-        self.log.append(alive_signal)
+        self.reset_log(alive_signal)
         print("PapaGuy appears to be alive.")
 
         return True
@@ -183,7 +187,7 @@ class PapaGuyItself:
 
     def send_message(self, action, payload = 0) -> bool:
         message = bytearray(pack("B", action) + pack(">H", payload))
-        print("SEND MESSAGE", action, payload)
+        print("SEND MESSAGE", action, payload, " @ ", time())
         if self.connection is None:
             print(f"Connection is not open (anymore?)")
             return False
@@ -203,13 +207,14 @@ class PapaGuyItself:
         if self.moves.current is not None:
             return False
 
-        print("EXECUTE MOVE:", move)
         self.moves.current = move
 
         if 'sample' in move:
             Thread(target=play_sound, args=(move['sample'],), daemon=True).start()
 
-        target_list = move.get('tracks', [])
+        target_list = []
+        if 'move' in move and 'tracks' in move['move']:
+            target_list = move['move']['tracks']
         if 'env' in move:
             target_list.append(move['env'])
 
@@ -217,14 +222,16 @@ class PapaGuyItself:
         self.moves.last_move_executed_at = time()
 
         max_length_sec = 0
+        print("EXECUTE MOVEY:", move, target_list)
         for target in target_list:
+            print("TRY THAT SHIT BY", target, MESSAGE_MAP)
             try:
                 target_name = MESSAGE_MAP[target['name']]
-            except KeyError:
+            except: # only KeyError possible?
                 print("!! Target name is not given in MESSAGE_MAP (__init__.py)! papaguy won't understand it!", target['name'], MESSAGE_MAP)
                 continue
 
-            print("TARGET NAME:", target['name'], target_name)
+            print("TARGET NAME:", target, target_name)
             for point in target['automationtimepoints']:
                 time_sec = point['time'] * TIME_RESOLUTION_IN_SEC + MOVEMENT_OFFSET_IN_SECONDS
                 value = int(point['value'] * MESSAGE_NORM)
