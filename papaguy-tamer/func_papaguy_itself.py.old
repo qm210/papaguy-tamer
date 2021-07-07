@@ -218,39 +218,20 @@ class PapaGuyItself:
         if 'env' in move:
             target_list.append(move['env'])
 
-
-         # jco hack
-        if len(target_list) == 1 and 'env' in move and target_list[0]['name'] == 'ENVELOPE':
-            new_tilt_target = { 'name':'body_tilt', 'automationtimepoints':[] }
-            new_head_tilt_target = { 'name':'head_tilt', 'automationtimepoints':[] }
-            new_head_rot_target = { 'name':'head_rotate', 'automationtimepoints':[] }
-            tilted_head = False
-            for point in target_list[0]['automationtimepoints']:
-                new_tilt_target['automationtimepoints'].append( { 'time':point['time'] + 10, 'value':point['value'] * 0.5 } )
-                if point['value'] > 0.5 and not tilted_head and point['time'] >= 20:
-                    new_head_tilt_target['automationtimepoints'].append( { 'time':point['time'], 'value':choice([0.0, 1.0]) } )
-                    tilted_head = True
-                if uniform(0.0, 1.0) > 0.8 and point['value'] > 0.5:
-                    new_head_rot_target['automationtimepoints'].append( { 'time':point['time'], 'value':uniform(0.3, 0.7) } )
-
-            new_head_tilt_target['automationtimepoints'].append( { 'time':target_list[0]['automationtimepoints'][-1]['time'], 'value':0.5 } )
-
-            target_list.append(new_tilt_target)
-            target_list.append(new_head_tilt_target)
-            target_list.append(new_head_rot_target)
-        # end jco hack
-
         self.moves.remember_last_ids.append(move['id'])
         self.moves.last_move_executed_at = time()
 
         max_length_sec = 0
+        print("EXECUTE MOVEY:", move, target_list)
         for target in target_list:
+            print("TRY THAT SHIT BY", target, MESSAGE_MAP)
             try:
                 target_name = MESSAGE_MAP[target['name']]
-            except: # KeyError ?
+            except: # only KeyError possible?
                 print("!! Target name is not given in MESSAGE_MAP (__init__.py)! papaguy won't understand it!", target['name'], MESSAGE_MAP)
                 continue
 
+            print("TARGET NAME:", target, target_name)
             for point in target['automationtimepoints']:
                 time_sec = point['time'] * TIME_RESOLUTION_IN_SEC + MOVEMENT_OFFSET_IN_SECONDS
                 value = int(point['value'] * MESSAGE_NORM)
