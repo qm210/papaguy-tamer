@@ -251,6 +251,10 @@ class PapaGuyItself:
                 print("!! Target name is not given in MESSAGE_MAP (__init__.py)! papaguy won't understand it!", target['name'], MESSAGE_MAP)
                 continue
 
+            # some fixes to support BeRo's actual format
+            if 'automationtimepoints' not in target and 'automation' in target:
+                target['automationtimepoints'] = target['automation']
+
             for (index, point) in enumerate(target['automationtimepoints']):
                 if type(point) is dict:
                     raw = point
