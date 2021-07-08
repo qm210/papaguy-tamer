@@ -175,10 +175,9 @@ class PapaGuyItself:
 
 
     def maybe_move_out_of_boredom(self):
-        print("ÖH", self.next_idle_seconds, self.moves.last_move_executed_at)
         if time() - self.moves.last_move_executed_at > self.next_idle_seconds:
             self.choose_next_idle_seconds()
-            print("WE MOVE OUT OF BOREDOM AND WAIT", self.next_idle_seconds, self.moves.last_move_executed_at)
+            print("WE MOVE OUT OF BOREDOM AND WAIT", self.next_idle_seconds)
             self.execute_some_move_from(self.moves.on_idle)
 
 
@@ -203,14 +202,17 @@ class PapaGuyItself:
         self.moves.all = get_available_moves()
         self.moves.on_radar = [move for move in self.moves.all if move['id'][0].isdigit()]
         self.moves.on_idle = [move for move in self.moves.all if move not in self.moves.on_radar]
-        print("LOADED MOVES.")
+        print("LOADED MOVES.", len(self.moves.on_radar), " ON RADAR, ", len(self.moves.on_idle), "ON IDLE")
+        return self.moves.all
+
+
+    def print_all_moves(self):
         print("ON_RADAR:", len(self.moves.on_radar))
         for move in self.moves.on_radar:
             print(move['id'], move['type'])
         print("ON_IDLE:", len(self.moves.on_idle))
         for move in self.moves.on_radar:
             print(move['id'], move['type'])
-        return self.moves.all
 
 
     def execute_move(self, move) -> bool:

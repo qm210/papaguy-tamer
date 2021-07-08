@@ -38,6 +38,12 @@ def list_moves():
     )
 
 
+@app.route('/movesdebug')
+def list_moves_to_console():
+    papaguy.print_all_moves()
+    return index()
+
+
 @app.route('/moves/<id>')
 def initiate_move(id=None):
     known_moves = papaguy.load_moves_from_disk() # wir gönnen uns, statt einfach liste vom cache zu nehmen
