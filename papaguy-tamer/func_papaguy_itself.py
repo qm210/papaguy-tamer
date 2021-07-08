@@ -7,7 +7,7 @@ from collections import deque
 from random import choice, uniform
 import serial.tools.list_ports
 
-from . import GENERAL_MESSAGE, TIME_RESOLUTION_IN_SEC, MESSAGE_MAP, RADAR_DIRECTION, MESSAGE_NORM
+from . import GENERAL_MESSAGE, TIME_RESOLUTION_IN_SEC, MESSAGE_MAP, RADAR_DIRECTION, MESSAGE_NORM, COMMUNICATION_DISABLED
 from .func_moves import get_available_moves
 from .utils import play_sound
 
@@ -18,7 +18,7 @@ WAITING_FOR_RESPONSE_ATTEMPTS = 20
 SECONDS_TO_IDLE_AT_LEAST = 20
 SECONDS_TO_IDLE_AT_MOST = 60
 
-MOVEMENT_OFFSET_IN_SECONDS = 0.1
+MOVEMENT_OFFSET_IN_SECONDS = 0.03
 
 class PapaGuyItself:
 
@@ -175,9 +175,10 @@ class PapaGuyItself:
 
 
     def maybe_move_out_of_boredom(self):
+        print("ÖH", self.next_idle_seconds, self.moves.last_move_executed_at)
         if time() - self.moves.last_move_executed_at > self.next_idle_seconds:
             self.choose_next_idle_seconds()
-            print("WE MOVE OUT OF BOREDOM AND WAIT", self.next_idle_seconds)
+            print("WE MOVE OUT OF BOREDOM AND WAIT", self.next_idle_seconds, self.moves.last_move_executed_at)
             self.execute_some_move_from(self.moves.on_idle)
 
 
@@ -191,6 +192,9 @@ class PapaGuyItself:
         if self.connection is None:
             print(f"Connection is not open (anymore?)")
             return False
+        if COMMUNICATION_DISABLED:
+            print("Communication is disabled, make sure to check COMMUNICATION_DISABLED in __init__.py. It's only a JOKE ;)")
+            return False
         self.connection.write(message)
         return True
 
@@ -199,7 +203,13 @@ class PapaGuyItself:
         self.moves.all = get_available_moves()
         self.moves.on_radar = [move for move in self.moves.all if move['id'][0].isdigit()]
         self.moves.on_idle = [move for move in self.moves.all if move not in self.moves.on_radar]
-        print("LOADED MOVES... ON_RADAR: ", len(self.moves.on_radar), " ON_IDLE: ", len(self.moves.on_idle))
+        print("LOADED MOVES.")
+        print("ON_RADAR:", len(self.moves.on_radar))
+        for move in self.moves.on_radar:
+            print(move['id'], move['type'])
+        print("ON_IDLE:", len(self.moves.on_idle))
+        for move in self.moves.on_radar:
+            print(move['id'], move['type'])
         return self.moves.all
 
 
@@ -233,7 +243,7 @@ class PapaGuyItself:
                 if uniform(0.0, 1.0) > 0.8 and point['value'] > 0.5:
                     new_head_rot_target['automationtimepoints'].append( { 'time':point['time'], 'value':uniform(0.3, 0.7) } )
 
-            new_head_tilt_target['automationtimepoints'].append( { 'time':target_list[0]['automationtimepoints'][-1]['time'], 'value':0.5 } )
+            new_head_tilt_target['automationtimepoints'].append( {'time':target_list[0]['automationtimepoints'][-1]['time'], 'value':0.5 } )
 
             target_list.append(new_tilt_target)
             target_list.append(new_head_tilt_target)
