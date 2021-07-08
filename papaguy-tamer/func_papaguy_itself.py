@@ -287,6 +287,12 @@ class PapaGuyItself:
             reset_timer.start()
             self.current_timers.append(reset_timer)
 
+        max_length_sec += TIME_RESOLUTION_IN_SEC
+        reset_wings_timer = Timer(max_length_sec, self.send_message, args=(MESSAGE_MAP['wings'], 0))
+        reset_wings_timer.start()
+        self.current_timers.append(reset_wings_timer)
+
+        max_length_sec += TIME_RESOLUTION_IN_SEC
         Timer(max_length_sec, self.clear_current_move).start()
         return True
 
