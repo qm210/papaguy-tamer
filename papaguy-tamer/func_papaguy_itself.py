@@ -251,9 +251,15 @@ class PapaGuyItself:
                 print("!! Target name is not given in MESSAGE_MAP (__init__.py)! papaguy won't understand it!", target['name'], MESSAGE_MAP)
                 continue
 
-            for point in target['automationtimepoints']:
-                time_sec = point['time'] * TIME_RESOLUTION_IN_SEC + MOVEMENT_OFFSET_IN_SECONDS
-                value = int(point['value'] * MESSAGE_NORM)
+            for (index, point) in enumerate(target['automationtimepoints']):
+                if type(point) is dict:
+                    raw = point
+                else:
+                    raw = [{'time': index, 'value': point}]
+
+                time_sec = raw['time'] * TIME_RESOLUTION_IN_SEC + MOVEMENT_OFFSET_IN_SECONDS
+                value = int(raw['value'] * MESSAGE_NORM)
+
                 timer = Timer(time_sec, self.send_message, args=(target_name, value))
                 timer.start()
                 self.current_timers.append(timer)
