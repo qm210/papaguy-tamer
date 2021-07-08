@@ -264,11 +264,11 @@ class PapaGuyItself:
             # some fixes to support BeRo's actual format
             automationtimepoints = target.get('automationtimepoints', target.get('automation', []))
 
-            for (index, point) in enumerate(automationtimepoints):
+            for index, point in enumerate(automationtimepoints):
                 if type(point) is dict:
                     raw = point
                 else:
-                    raw = [{'time': index, 'value': point}]
+                    raw = {'time': index, 'value': point}
 
                 time_sec = raw['time'] * TIME_RESOLUTION_IN_SEC + MOVEMENT_OFFSET_IN_SECONDS
                 value = int(raw['value'] * MESSAGE_NORM)
