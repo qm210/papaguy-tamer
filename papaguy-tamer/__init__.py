@@ -1,7 +1,7 @@
 VERSION = "0.99999"
 PACKAGE_NAME = "papaguy-tamer"
 PRODUCTION = True
-COMMUNICATION_DISABLED = False
+COMMUNICATION_DISABLED = True
 
 BASE_DIR = "./papaguy-tamer"
 MOVES_DIR = BASE_DIR + "/moves"
