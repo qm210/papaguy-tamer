@@ -252,10 +252,9 @@ class PapaGuyItself:
                 continue
 
             # some fixes to support BeRo's actual format
-            if 'automationtimepoints' not in target and 'automation' in target:
-                target['automationtimepoints'] = target['automation']
+            automationtimepoints = target.get('automationtimepoints', target.get('automation', []))
 
-            for (index, point) in enumerate(target['automationtimepoints']):
+            for (index, point) in enumerate(automationtimepoints):
                 if type(point) is dict:
                     raw = point
                 else:
