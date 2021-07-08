@@ -51,7 +51,7 @@ def initiate_move(id=None):
     else:
         papaguy.reset_log("Didn't work. Maybe there is still a move ongoing?")
 
-    return redirect(url_for('print_serial_log'))
+    return redirect(url_for('list_moves'))
 
 
 @app.route('/panic')
