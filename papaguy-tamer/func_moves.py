@@ -39,7 +39,7 @@ def process_move(entry, fullpath, name, ending):
         except:
             entry['env'] = generate_envelope_as_bero_format(fullpath)
 
-    elif ending in ['manual', 'auto', 'idle', 'move']:
+    elif ending in ['json', 'move']:
         try:
             with open(fullpath) as fp:
                 entry['move'] = json.load(fp)
