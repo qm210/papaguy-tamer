@@ -1,12 +1,17 @@
-VERSION = "0.99999"
+VERSION = "0.999999"
 PACKAGE_NAME = "papaguy-tamer"
 PRODUCTION = True
 COMMUNICATION_DISABLED = False
+VERBOSE = False
 
 BASE_DIR = "./papaguy-tamer"
 MOVES_DIR = BASE_DIR + "/moves"
 
 TIME_RESOLUTION_IN_SEC = 0.05
+
+SECONDS_TO_IDLE_AT_LEAST = 20
+SECONDS_TO_IDLE_AT_MOST = 60
+AUTO_CONNECT_AFTER_SECONDS = 5 * 60
 
 # track.name from BeRos array will be mapped to a short integer ("target") for the papaguy-itself
 MESSAGE_MAP = {

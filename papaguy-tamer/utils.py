@@ -1,9 +1,11 @@
 from .PythonAudioEnvelope import gen_envelope
 from contextlib import redirect_stdout
 from simpleaudio import WaveObject
+from threading import Timer
 from os import devnull
 
-from . import TIME_RESOLUTION_IN_SEC
+from . import TIME_RESOLUTION_IN_SEC, AUTO_CONNECT_AFTER_SECONDS
+
 
 def generate_envelope_as_bero_format(wavfile):
     with open(devnull, 'w') as dev_null:

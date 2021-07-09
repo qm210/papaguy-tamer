@@ -7,7 +7,10 @@ from collections import deque
 from random import choice, uniform
 import serial.tools.list_ports
 
-from . import GENERAL_MESSAGE, TIME_RESOLUTION_IN_SEC, MESSAGE_MAP, RADAR_DIRECTION, MESSAGE_NORM, COMMUNICATION_DISABLED
+from . import GENERAL_MESSAGE, TIME_RESOLUTION_IN_SEC, MESSAGE_MAP, \
+    RADAR_DIRECTION, MESSAGE_NORM, COMMUNICATION_DISABLED, VERBOSE, \
+    SECONDS_TO_IDLE_AT_LEAST, SECONDS_TO_IDLE_AT_MOST
+
 from .func_moves import get_available_moves
 from .utils import play_sound
 
@@ -15,8 +18,6 @@ SERIAL_BAUD = 115200
 
 WAITING_FOR_RESPONSE_ATTEMPTS = 20
 
-SECONDS_TO_IDLE_AT_LEAST = 20
-SECONDS_TO_IDLE_AT_MOST = 60
 
 MOVEMENT_OFFSET_IN_SECONDS = 0.03
 
@@ -35,6 +36,7 @@ class PapaGuyItself:
         remember_last_ids = deque([], 10)
         next_idle_seconds = 0
         last_move_executed_at = 0
+        next_idle_timer = None
 
 
     def __init__(self):
@@ -109,7 +111,8 @@ class PapaGuyItself:
 
     def disconnect(self) -> bool:
         if self.connection is None:
-            print("Couldn't disconnect, cause nothing is connected :|")
+            if VERBOSE:
+                print("Couldn't disconnect, cause nothing is connected :|")
             return False
         self.connection.close()
         self.clear_connection()
@@ -117,19 +120,34 @@ class PapaGuyItself:
         return True
 
 
+    def try_autoconnect(self):
+        self.disconnect()
+        try:
+            ports = self.get_portlist()
+            port = next((port for port in ports if 'COM' in port or 'USB' in port))
+            return self.connect(port)
+        except:
+            return False
+
+
     def communicate(self):
         while self.connection is not None:
             self.maybe_move_out_of_boredom()
 
             sleep(0.2)
-            data = self.read_string()
-            if len(data) == 0:
+            try:
+                data = self.read_string()
+                assert len(data) > 0
+            except:
                 continue
 
             self.interpret_message(data)
             self.log.append(data)
 
-        print("papaguy.communicate() stopped, because connection went down")
+        if VERBOSE:
+            print("papaguy.communicate() stopped, because connection went down")
+
+        self.try_autoconnect()
 
 
     def interpret_message(self, message):
@@ -175,10 +193,23 @@ class PapaGuyItself:
 
 
     def maybe_move_out_of_boredom(self):
-        if time() - self.moves.last_move_executed_at > self.next_idle_seconds:
-            self.choose_next_idle_seconds()
-            print("WE MOVE OUT OF BOREDOM AND WAIT", self.next_idle_seconds)
+        if self.moves.next_idle_timer is None:
+            print("TIMER WAS NONE. DO SOMETHING")
+            if self.next_idle_seconds < SECONDS_TO_IDLE_AT_LEAST:
+                self.choose_next_idle_seconds()
+            self.moves.next_idle_timer = Timer(self.next_idle_seconds, self.execute_idle_move)
+            self.moves.next_idle_timer.start()
+            print("TIMER STARTED FOR IN SECONDS", self.next_idle_seconds)
+
+
+    def execute_idle_move(self):
+        self.choose_next_idle_seconds()
+        print("WE MOVE OUT OF BOREDOM AND WAIT", self.next_idle_seconds)
+        try:
             self.execute_some_move_from(self.moves.on_idle)
+        except:
+            pass # whatever then, this might catch annoying RuntimeError: can't start new thread
+        self.moves.next_idle_timer = None
 
 
     def choose_next_idle_seconds(self):
@@ -187,7 +218,8 @@ class PapaGuyItself:
 
     def send_message(self, action, payload = 0) -> bool:
         message = bytearray(pack("B", action) + pack(">H", payload))
-        print("SEND MESSAGE", action, payload, " @ ", time())
+        if VERBOSE:
+            print("SEND MESSAGE", action, payload, " @ ", time())
         if self.connection is None:
             print(f"Connection is not open (anymore?)")
             return False
@@ -287,10 +319,11 @@ class PapaGuyItself:
             reset_timer.start()
             self.current_timers.append(reset_timer)
 
-        max_length_sec += TIME_RESOLUTION_IN_SEC
-        reset_wings_timer = Timer(max_length_sec, self.send_message, args=(MESSAGE_MAP['wings'], 0))
-        reset_wings_timer.start()
-        self.current_timers.append(reset_wings_timer)
+        for safety_wing_reset in range(10):
+            max_length_sec += TIME_RESOLUTION_IN_SEC
+            reset_wings_timer = Timer(max_length_sec, self.send_message, args=(MESSAGE_MAP['wings'], 0))
+            reset_wings_timer.start()
+            self.current_timers.append(reset_wings_timer)
 
         max_length_sec += TIME_RESOLUTION_IN_SEC
         Timer(max_length_sec, self.clear_current_move).start()
@@ -303,6 +336,9 @@ class PapaGuyItself:
         except IndexError:
             print("LIST EMPTY; CANNOT CHOOSE.", list)
             return
+        except:
+            print("some exception, don't care, move on")
+
         self.execute_move(chosen_from_nonrecent)
 
 

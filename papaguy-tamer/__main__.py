@@ -1,12 +1,24 @@
 from . import VERSION, PRODUCTION
-from .app import app
+from .app import app, startup
 from .batch import batch_jobs
+from threading import Timer
+from requests import get
+
+
+def startup():
+    try:
+        response = get('http://localhost:8080', verify=False)
+        print("auto request response", response.content)
+    except:
+        print("no response from auto request, visit manually plis")
 
 
 if __name__ == '__main__':
     print("papaguy-tamer v", VERSION)
 
     batch_jobs()
+
+    Timer(2, startup).start()
 
     if PRODUCTION:
         from waitress import serve

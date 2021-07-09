@@ -1,15 +1,33 @@
 from flask import Flask, render_template, send_from_directory, request, url_for, redirect
 from time import time, ctime
-from threading import Thread
+from threading import Thread, Timer
+from continuous_threading import ContinuousThread
 import os
 
-from . import VERSION, GENERAL_MESSAGE
+from . import VERSION, GENERAL_MESSAGE, AUTO_CONNECT_AFTER_SECONDS
 from .func_papaguy_itself import papaguy
 from .batch import batch_jobs
 
 
 app = Flask(__name__)
 server_start_time = time()
+
+@app.before_first_request
+def startup():
+    print("Hello.")
+    def autoconnect_loop():
+        print("Start Autoconnect loop.")
+        papaguy.try_autoconnect()
+        Timer(AUTO_CONNECT_AFTER_SECONDS, autoconnect_loop).start()
+    autoconnect_loop()
+    return redirect(url_for('index'))
+
+
+@app.errorhandler(Exception)
+def handle_exception(err):
+    print("!!! ERROR", err)
+    try_autoconnect()
+    return redirect(url_for('list_serial_ports'))
 
 
 @app.route('/')
@@ -69,12 +87,16 @@ def cancel_all_moves():
 
 @app.route('/connect/<port>')
 def connect_serial(port):
-    if papaguy.connection is not None:
+    def kthxbye():
         return redirect(url_for('print_serial_log'))
 
+    print("try to connect, does connection exist?", papaguy.connection is not None, "... should route to", route)
+    if papaguy.connection is not None:
+        return kthxbye()
+
     if papaguy.connect(port):
-        Thread(target=papaguy.communicate, daemon=True).start()
-        return redirect(url_for('print_serial_log'))
+        ContinuousThread(target=papaguy.communicate).start()
+        return kthxbye()
     else:
         return redirect(url_for('index'))
 
@@ -109,6 +131,12 @@ def list_serial_ports():
         list=ports,
         href=links
     )
+
+
+@app.route('/autoconn')
+def try_autoconnect():
+    papaguy.try_autoconnect()
+    return redirect(url_for('list_moves'))
 
 
 @app.route('/log')
