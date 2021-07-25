@@ -3,6 +3,7 @@ from serial import Serial
 from time import sleep, time
 from struct import pack
 from threading import Timer, Thread
+from continuous_threading import ContinuousThread
 from collections import deque
 from random import choice, uniform
 import serial.tools.list_ports
@@ -94,6 +95,8 @@ class PapaGuyItself:
 
         self.reset_log(alive_signal)
         print("PapaGuy appears to be alive.")
+
+        ContinuousThread(target=self.communicate).start()
 
         return True
 
@@ -233,7 +236,7 @@ class PapaGuyItself:
     def load_moves_from_disk(self):
         self.moves.all = get_available_moves()
         self.moves.on_radar = [move for move in self.moves.all if move['id'][0].isdigit()]
-        self.moves.on_idle = [move for move in self.moves.all if move not in self.moves.on_radar]
+        self.moves.on_idle = self.moves.all # we actually don't have no radar #[move for move in self.moves.all if move not in self.moves.on_radar]
         print("LOADED MOVES.", len(self.moves.on_radar), " ON RADAR, ", len(self.moves.on_idle), "ON IDLE")
         return self.moves.all
 

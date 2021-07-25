@@ -1,7 +1,6 @@
 from flask import Flask, render_template, send_from_directory, request, url_for, redirect
 from time import time, ctime
-from threading import Thread, Timer
-from continuous_threading import ContinuousThread
+from threading import Timer
 import os
 
 from . import VERSION, GENERAL_MESSAGE, AUTO_CONNECT_AFTER_SECONDS
@@ -95,7 +94,6 @@ def connect_serial(port):
         return kthxbye()
 
     if papaguy.connect(port):
-        ContinuousThread(target=papaguy.communicate).start()
         return kthxbye()
     else:
         return redirect(url_for('index'))
