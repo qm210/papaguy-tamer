@@ -234,6 +234,7 @@ class PapaGuyItself:
 
 
     def load_moves_from_disk(self):
+
         self.moves.all = get_available_moves()
         self.moves.on_radar = [move for move in self.moves.all if move['id'][0].isdigit()]
         self.moves.on_idle = self.moves.all # we actually don't have no radar #[move for move in self.moves.all if move not in self.moves.on_radar]
