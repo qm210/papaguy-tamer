@@ -1,5 +1,5 @@
 from flask import Flask, render_template, send_from_directory, request, url_for, redirect
-from time import time, ctime
+from time import time, ctime, sleep
 from threading import Timer
 import os
 
@@ -17,7 +17,12 @@ def startup():
     def autoconnect_loop():
         print("Start Autoconnect loop.")
         papaguy.try_autoconnect()
-        Timer(AUTO_CONNECT_AFTER_SECONDS, autoconnect_loop).start()
+        try:
+            Timer(AUTO_CONNECT_AFTER_SECONDS, autoconnect_loop).start()
+        except:
+            print("could not start threading.Timer, use blocking delay (few seconds)")
+            sleep(5)
+            autoconnect_loop()
     autoconnect_loop()
     return redirect(url_for('index'))
 

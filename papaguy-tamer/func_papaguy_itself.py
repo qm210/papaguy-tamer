@@ -5,12 +5,13 @@ from struct import pack
 from threading import Timer, Thread
 from continuous_threading import ContinuousThread
 from collections import deque
-from random import choice, uniform
+from random import choice, uniform, random
 import serial.tools.list_ports
 
 from . import GENERAL_MESSAGE, TIME_RESOLUTION_IN_SEC, MESSAGE_MAP, \
     RADAR_DIRECTION, MESSAGE_NORM, COMMUNICATION_DISABLED, VERBOSE, \
-    SECONDS_TO_IDLE_AT_LEAST, SECONDS_TO_IDLE_AT_MOST
+    SECONDS_TO_IDLE_AT_LEAST, SECONDS_TO_IDLE_AT_MOST, \
+    CHANCE_OF_TALKING
 
 from .func_moves import get_available_moves
 from .utils import play_sound
@@ -200,6 +201,7 @@ class PapaGuyItself:
             print("TIMER WAS NONE. DO SOMETHING")
             if self.next_idle_seconds < SECONDS_TO_IDLE_AT_LEAST:
                 self.choose_next_idle_seconds()
+                return
             self.moves.next_idle_timer = Timer(self.next_idle_seconds, self.execute_idle_move)
             self.moves.next_idle_timer.start()
             print("TIMER STARTED FOR IN SECONDS", self.next_idle_seconds)
@@ -207,11 +209,13 @@ class PapaGuyItself:
 
     def execute_idle_move(self):
         self.choose_next_idle_seconds()
-        print("WE MOVE OUT OF BOREDOM AND WAIT", self.next_idle_seconds)
+        play_sound = random() < CHANCE_OF_TALKING
+        print("WE MOVE OUT OF BOREDOM AND WAIT", self.next_idle_seconds, "AND DO WE SPEAK?", play_sound)
         try:
-            self.execute_some_move_from(self.moves.on_idle)
-        except:
-            pass # whatever then, this might catch annoying RuntimeError: can't start new thread
+            self.execute_some_move_from(self.moves.on_idle, play_sound)
+        except Exception as e:
+            print("error", e)
+
         self.moves.next_idle_timer = None
 
 
@@ -251,13 +255,13 @@ class PapaGuyItself:
             print(move['id'], move['type'])
 
 
-    def execute_move(self, move) -> bool:
+    def execute_move(self, move, play_sound = true) -> bool:
         if self.moves.current is not None:
             return False
 
         self.moves.current = move
 
-        if 'sample' in move:
+        if 'sample' in move and play_sound:
             Thread(target=play_sound, args=(move['sample'],), daemon=True).start()
 
         target_list = []
@@ -334,7 +338,7 @@ class PapaGuyItself:
         return True
 
 
-    def execute_some_move_from(self, list):
+    def execute_some_move_from(self, list, play_sound = true):
         try:
             chosen_from_nonrecent = choice([move for move in list if move['id'] not in self.moves.remember_last_ids])
         except IndexError:
@@ -343,7 +347,7 @@ class PapaGuyItself:
         except:
             print("some exception, don't care, move on")
 
-        self.execute_move(chosen_from_nonrecent)
+        self.execute_move(chosen_from_nonrecent, play_sound)
 
 
 papaguy = PapaGuyItself()
