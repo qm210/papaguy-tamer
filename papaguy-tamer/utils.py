@@ -4,7 +4,7 @@ from simpleaudio import WaveObject
 from threading import Timer
 from os import devnull
 
-from . import TIME_RESOLUTION_IN_SEC, AUTO_CONNECT_AFTER_SECONDS
+from . import TIME_RESOLUTION_IN_SEC
 
 
 def generate_envelope_as_bero_format(wavfile):
