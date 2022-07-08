@@ -255,7 +255,7 @@ class PapaGuyItself:
             print(move['id'], move['type'])
 
 
-    def execute_move(self, move, play_sound = true) -> bool:
+    def execute_move(self, move, play_sound = True) -> bool:
         if self.moves.current is not None:
             return False
 
@@ -338,7 +338,7 @@ class PapaGuyItself:
         return True
 
 
-    def execute_some_move_from(self, list, play_sound = true):
+    def execute_some_move_from(self, list, play_sound = True):
         try:
             chosen_from_nonrecent = choice([move for move in list if move['id'] not in self.moves.remember_last_ids])
         except IndexError:
