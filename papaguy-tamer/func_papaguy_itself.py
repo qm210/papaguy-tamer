@@ -255,13 +255,13 @@ class PapaGuyItself:
             print(move['id'], move['type'])
 
 
-    def execute_move(self, move, play_sound = True) -> bool:
+    def execute_move(self, move, do_play_sound = True) -> bool:
         if self.moves.current is not None:
             return False
 
         self.moves.current = move
 
-        if 'sample' in move and play_sound:
+        if 'sample' in move and do_play_sound:
             Thread(target=play_sound, args=(move['sample'],), daemon=True).start()
 
         target_list = []
