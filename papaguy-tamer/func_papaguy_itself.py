@@ -28,7 +28,7 @@ class PapaGuyItself:
     port = None
     connection = None
     current_timers = []
-    random_moves_on = RANDOM_MOVES_ON_DEFAULT
+    do_random_moves = RANDOM_MOVES_ON_DEFAULT
 
     class Moves:
         current = None
