@@ -352,6 +352,7 @@ class PapaGuyItself:
 
     def toggle_random_moves(self, value = None):
         self.do_random_moves = not self.do_random_moves if value is None else value
+        print("RANDOM MOVES ARE NOW ON?", self.do_random_moves)
 
 
 papaguy = PapaGuyItself()
