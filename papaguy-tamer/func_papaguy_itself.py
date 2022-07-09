@@ -129,7 +129,7 @@ class PapaGuyItself:
         self.disconnect()
         try:
             ports = self.get_portlist()
-            port = next((port for port in ports if 'COM' in port or 'USB' in port))
+            port = next((port for port in ports if 'COM' in port or 'USB' in port or 'ACM' in port))
             return self.connect(port)
         except:
             return False
