@@ -1,5 +1,5 @@
 {"tracks": [
 	{"name":"eyes", "automationtimepoints": [
-		{"time":1,  "value":1 },
+		{"time":1,  "value":1 }
 		] }
 	] }
