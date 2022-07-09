@@ -15,6 +15,7 @@
                 <li>Disconnected. See <a href="{{ url_for('list_serial_ports') }}">Serial Ports</a></li>
             {% endif %}
             <li><a href="{{ url_for('list_moves') }}">Moves</a></li>
+            <li>Move Randomly: <a href="{{ url_for('toggle_random_moves') }}">{{ do_random_moves }}</a></li>
         </ul>
     </body>
 </html>

@@ -14,6 +14,8 @@ SECONDS_TO_IDLE_AT_MOST = 40
 CHANCE_OF_TALKING = 0.5
 AUTO_CONNECT_AFTER_SECONDS = 5 * 60
 
+RANDOM_MOVES_ON_DEFAULT = True
+
 # track.name from BeRos array will be mapped to a short integer ("target") for the papaguy-itself
 MESSAGE_MAP = {
     'body_tilt': 1,

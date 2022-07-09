@@ -11,7 +11,7 @@ import serial.tools.list_ports
 from . import GENERAL_MESSAGE, TIME_RESOLUTION_IN_SEC, MESSAGE_MAP, \
     RADAR_DIRECTION, MESSAGE_NORM, COMMUNICATION_DISABLED, VERBOSE, \
     SECONDS_TO_IDLE_AT_LEAST, SECONDS_TO_IDLE_AT_MOST, \
-    CHANCE_OF_TALKING
+    CHANCE_OF_TALKING, RANDOM_MOVES_ON_DEFAULT
 
 from .func_moves import get_available_moves
 from .utils import play_sound
@@ -19,7 +19,6 @@ from .utils import play_sound
 SERIAL_BAUD = 115200
 
 WAITING_FOR_RESPONSE_ATTEMPTS = 20
-
 
 MOVEMENT_OFFSET_IN_SECONDS = 0.03
 
@@ -29,6 +28,7 @@ class PapaGuyItself:
     port = None
     connection = None
     current_timers = []
+    random_moves_on = RANDOM_MOVES_ON_DEFAULT
 
     class Moves:
         current = None
@@ -136,7 +136,8 @@ class PapaGuyItself:
 
     def communicate(self):
         while self.connection is not None:
-            self.maybe_move_out_of_boredom()
+            if self.do_random_moves:
+                self.maybe_move_out_of_boredom()
 
             sleep(0.2)
             try:
@@ -201,7 +202,6 @@ class PapaGuyItself:
             print("TIMER WAS NONE. DO SOMETHING")
             if self.next_idle_seconds < SECONDS_TO_IDLE_AT_LEAST:
                 self.choose_next_idle_seconds()
-                return
             self.moves.next_idle_timer = Timer(self.next_idle_seconds, self.execute_idle_move)
             self.moves.next_idle_timer.start()
             print("TIMER STARTED FOR IN SECONDS", self.next_idle_seconds)
@@ -348,6 +348,10 @@ class PapaGuyItself:
             print("some exception, don't care, move on")
 
         self.execute_move(chosen_from_nonrecent, play_sound)
+
+
+    def toggle_random_moves(self, value = None):
+        self.do_random_moves = not self.do_random_moves if value is None else value
 
 
 papaguy = PapaGuyItself()

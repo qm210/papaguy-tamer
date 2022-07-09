@@ -40,7 +40,8 @@ def index():
         'home.html',
         title=f"papaguy-tamer v{VERSION} is running since {ctime(server_start_time)}",
         message=f"qm says thanks for checking by.",
-        connected=papaguy.connection is not None
+        connected=papaguy.connection is not None,
+        do_random_moves = papaguy.do_random_moves,
     )
 
 
@@ -58,6 +59,11 @@ def list_moves():
         message=f"Found {len(known_moves)} thingies.",
         list=known_moves
     )
+
+@app.route('/toggle_random_moves')
+def toggle_random_moves():
+    papaguy.toggle_random_moves()
+    return redirect(url_for('index'))
 
 
 @app.route('/movesdebug')
