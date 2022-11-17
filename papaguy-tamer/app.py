@@ -3,13 +3,23 @@ from time import time, ctime, sleep
 from threading import Timer
 import os
 
-from . import VERSION, GENERAL_MESSAGE, AUTO_CONNECT_AFTER_SECONDS
-from .func_papaguy_itself import papaguy
+from . import VERSION, GENERAL_MESSAGE, AUTO_CONNECT_AFTER_SECONDS, \
+    RANDOM_MOVES_ON_DEFAULT, SECONDS_TO_IDLE_AT_LEAST, SECONDS_TO_IDLE_AT_MOST, CHANCE_OF_TALKING
+
+from .func_papaguy_itself import PapaGuyItself
+from .logic import LegacyLogic, RocketLogic
 from .batch import batch_jobs
 
 
 app = Flask(__name__)
 server_start_time = time()
+
+logic = LegacyLogic(do_random_moves=RANDOM_MOVES_ON_DEFAULT,
+                    idle_seconds_min=SECONDS_TO_IDLE_AT_LEAST,
+                    idle_seconds_max=SECONDS_TO_IDLE_AT_MOST,
+                    chance_of_talking=CHANCE_OF_TALKING,)
+papaguy = PapaGuyItself(logic)
+
 
 @app.before_first_request
 def startup():
@@ -52,7 +62,7 @@ def favicon():
 
 @app.route('/moves')
 def list_moves():
-    known_moves = papaguy.load_moves_from_disk()
+    known_moves = papaguy.load_moves()
     return render_template(
         'moves.html',
         title="Moves",
@@ -74,7 +84,7 @@ def list_moves_to_console():
 
 @app.route('/moves/<id>')
 def initiate_move(id=None):
-    known_moves = papaguy.load_moves_from_disk() # wir gönnen uns, statt einfach liste vom cache zu nehmen
+    known_moves = papaguy.load_moves()  # wir gönnen uns, statt einfach liste vom cache zu nehmen
     try:
         existing_move = next((move for move in known_moves if move['id'] == id))
     except:
@@ -131,7 +141,7 @@ def disconnect():
 
 @app.route('/portlist')
 def list_serial_ports():
-    ports = papaguy.get_portlist()
+    ports = papaguy.get_port_list()
     links = ['./connect/' + port for port in ports]
     return render_template(
         'list.html',

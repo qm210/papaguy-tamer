@@ -1,5 +1,5 @@
 from . import VERSION, PRODUCTION
-from .app import app, startup
+from .app import app
 from .batch import batch_jobs
 from threading import Timer
 from requests import get
@@ -24,5 +24,5 @@ if __name__ == '__main__':
         from waitress import serve
         serve(app, host='0.0.0.0', port=8080)
     else:
-        app.run(debug=True, host='0.0.0.0', use_reloader=True) # threaded=True is default
+        app.run(debug=True, host='0.0.0.0', use_reloader=True)  # threaded=True is default
 

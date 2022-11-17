@@ -1,4 +1,4 @@
-VERSION = "0.999999"
+VERSION = "2.0"
 PACKAGE_NAME = "papaguy-tamer"
 PRODUCTION = True
 COMMUNICATION_DISABLED = False
@@ -30,6 +30,7 @@ MESSAGE_MAP = {
     'fog': 23,
 }
 
+
 class GENERAL_MESSAGE:
     ROTATE_HEAD = 4 # this is different from the other servos, because direction-dependent (reacts to radars)
     EMULATE_RADAR = 101
@@ -40,6 +41,7 @@ class GENERAL_MESSAGE:
 
 # all these targets will receive the position [0..1023] from the generated wav envelope
 # could probably use some offset / scaling. TODO
+
 
 # the associated directions (in servo units from 0 .. 180 degrees) of the radars for the head
 RADAR_DIRECTION = [
