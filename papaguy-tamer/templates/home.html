@@ -11,6 +11,7 @@
             {% if connected %}
                 <li><a href="{{ url_for('print_serial_log') }}">Serial Log</a></li>
                 <li><a href="{{ url_for('disconnect') }}">Disconnect</a></li>
+                <li><a href="{{ url_for('rocket_page') }}">to the Rocket thing!</a></li>
             {% else %}
                 <li>Disconnected. See <a href="{{ url_for('list_serial_ports') }}">Serial Ports</a></li>
             {% endif %}

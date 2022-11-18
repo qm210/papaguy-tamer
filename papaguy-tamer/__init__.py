@@ -1,8 +1,11 @@
 VERSION = "2.0"
 PACKAGE_NAME = "papaguy-tamer"
-PRODUCTION = True
+PRODUCTION = False
 COMMUNICATION_DISABLED = False
 VERBOSE = False
+
+# IGNORE_ARDUINO does not need a real Arduino to test its logic
+IGNORE_ARDUINO = True
 
 BASE_DIR = "./papaguy-tamer"
 MOVES_DIR = BASE_DIR + "/moves"

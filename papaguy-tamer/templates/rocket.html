@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>PapaGuy-Tamer</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+        {% if refresh is defined %}
+            <meta http-equiv="refresh" content="{{refresh}}">
+        {% endif %}
+    </head>
+    <body>
+        <h1>GNU Rocket Script interface</h1>
+        <p>{{ title }}</p>
+        <p>
+            Idea is, you enter a GNU Rocket script here and send it to the thingy, and then we'll see / measure how often it explodes
+        </p>
+        <p>
+            Use values inside [0; 1023], outliers will get clamped anyway
+        </p>
+        <form action="{{ url_for('submit_rocket_script') }}" method="post">
+            <textarea
+                class="huge-field"
+                name="rocket-script"
+            >{{ script }}</textarea>
+            <input type="submit"/>
+        </form>
+        {% if footer is defined %}
+            {{ footer | safe }}
+        {% endif %}
+    </body>
+</html>

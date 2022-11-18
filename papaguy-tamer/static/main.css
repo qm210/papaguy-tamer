@@ -16,3 +16,8 @@ a {
     margin: 1rem;
     font-size: 1.5rem;
 }
+
+.huge-field {
+    width: 100%;
+    height: 60vh;
+}

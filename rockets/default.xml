@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<tracks>
+    <track name="head_tilt">
+        <key interpolation="1" row="0" value="512"/>
+        <key interpolation="1" row="40" value="0"/>
+        <key interpolation="1" row="100" value="1024"/>
+        <key interpolation="1" row="200" value="512"/>
+    </track>
+    <track name="head_rotate">
+        <key interpolation="1" row="0" value="512"/>
+        <key interpolation="1" row="40" value="0"/>
+        <key interpolation="1" row="100" value="1024"/>
+        <key interpolation="1" row="200" value="512"/>
+    </track>
+    <track name="wings">
+        <key interpolation="1" row="0" value="512"/>
+        <key interpolation="1" row="40" value="0"/>
+        <key interpolation="1" row="100" value="1024"/>
+        <key interpolation="1" row="200" value="512"/>
+    </track>
+    <track name="beak">
+        <key interpolation="1" row="0" value="512"/>
+        <key interpolation="1" row="40" value="0"/>
+        <key interpolation="1" row="100" value="1024"/>
+        <key interpolation="1" row="200" value="512"/>
+    </track>
+    <track name="body_tilt">
+        <key interpolation="1" row="0" value="512"/>
+        <key interpolation="1" row="40" value="0"/>
+        <key interpolation="1" row="100" value="1024"/>
+        <key interpolation="1" row="200" value="512"/>
+    </track>
+</tracks>

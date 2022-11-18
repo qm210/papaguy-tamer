@@ -1,3 +1,4 @@
+import string
 from collections import deque
 from serial import Serial
 from time import sleep, time
@@ -6,7 +7,7 @@ from threading import Thread
 from continuous_threading import ContinuousThread
 import serial.tools.list_ports
 
-from . import GENERAL_MESSAGE, COMMUNICATION_DISABLED, VERBOSE
+from . import GENERAL_MESSAGE, COMMUNICATION_DISABLED, VERBOSE, IGNORE_ARDUINO, MESSAGE_MAP
 
 from .utils import play_sound, read_string_from
 from .logic import Logic
@@ -15,9 +16,6 @@ from .logic import Logic
 SERIAL_BAUD = 115200
 
 WAITING_FOR_RESPONSE_ATTEMPTS = 20
-
-# DEVELOPMENT_MODE does not need a real Arduino to test its logic
-DEVELOPMENT_MODE = True
 
 
 class PapaGuyItself:
@@ -79,7 +77,7 @@ class PapaGuyItself:
         return True
 
     def connection_exists(self):
-        return self.connection is not None or DEVELOPMENT_MODE
+        return self.connection is not None or IGNORE_ARDUINO
 
     def disconnect(self) -> bool:
         if self.connection is None:
@@ -102,7 +100,8 @@ class PapaGuyItself:
             port = next((port for port in ports if 'COM' in port or 'USB' in port or 'ACM' in port))
             return self.connect(port)
         except Exception as ex:
-            print("exception", ex)
+            print("exception", repr(ex)
+                  )
             return False
 
     def run_loop(self):
@@ -132,10 +131,23 @@ class PapaGuyItself:
             return
         self.logic.on_message(action, payload)
 
-    def send_message(self, action, payload=0) -> bool:
+    def send_message(self, target: string, payload: int = 0) -> bool:
+        try:
+            action = MESSAGE_MAP[target]
+        except KeyError:
+            try:
+                action = int(target)
+            except ValueError:
+                print(f"!! Target {target} not an integer or defined in MESSAGE_MAP. Cancel.")
+                return False
+
+        now = time()
+        if IGNORE_ARDUINO or VERBOSE:
+            print(f"{'WOULD ' if IGNORE_ARDUINO else ''}SEND: action {action} payload {payload} @ {now}")
+        if IGNORE_ARDUINO:
+            return True
+
         message = bytearray(pack("B", action) + pack(">H", payload))
-        if VERBOSE:
-            print("SEND MESSAGE", action, payload, " @ ", time())
         if self.connection is None:
             print(f"Connection is not open (anymore?)")
             return False

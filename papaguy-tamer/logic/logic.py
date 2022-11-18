@@ -9,7 +9,7 @@ class Logic:
         return cls.__name__
 
     def set_callbacks(self, message_func, speak_func):
-        pass
+        raise NotImplementedError()
 
     def clear(self):
         pass
@@ -43,3 +43,6 @@ class Logic:
 
     def get_moves(self):
         pass
+
+    def process_script(self, script: string) -> Any:
+        raise NotImplementedError()

@@ -1,12 +1,14 @@
 from flask import Flask, render_template, send_from_directory, request, url_for, redirect
 from time import time, ctime, sleep
 from threading import Timer
+from traceback import print_exc
 import os
 
 from . import VERSION, GENERAL_MESSAGE, AUTO_CONNECT_AFTER_SECONDS
 from .func_papaguy_itself import PapaGuyItself
 from .logic import LegacyLogic, RocketLogic
 from .batch import batch_jobs
+from .utils import read_file_content
 
 
 app = Flask(__name__)
@@ -20,6 +22,8 @@ logic = RocketLogic()
 
 papaguy = PapaGuyItself(logic)
 
+temp_rocket_filename = "./rockets/last.xml"
+fallback_rocket_filename = "./rockets/default.xml"
 
 @app.before_first_request
 def startup():
@@ -192,3 +196,24 @@ def emulate_radar_detection():
 def force_batch_jobs():
     batch_jobs(True)
     return "Finished Forced Precalc."
+
+
+@app.route('/rocket-starter')
+def rocket_page():
+    return render_template(
+        'rocket.html',
+        title=f"Running on port {papaguy.port}",
+        script=read_file_content(temp_rocket_filename, fallback_rocket_filename)
+    )
+
+
+@app.route('/submit-rocket-script', methods=['POST'])
+def submit_rocket_script():
+    script = request.form['rocket-script']
+    with open(temp_rocket_filename, "w") as rocket_file:
+        rocket_file.write(script)
+    papaguy.logic.process_script(temp_rocket_filename)
+    try:
+        return redirect(url_for('rocket_page'))
+    except Exception as ex:
+        return print_exc()

@@ -11,6 +11,7 @@ MarkupSafe==2.0.1
 playsound==1.2.2
 psutil==5.8.0
 pyserial==3.5
+pyrocket==0.2.9
 requests==2.25.1
 simpleaudio==1.0.4
 urllib3==1.26.6

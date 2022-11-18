@@ -4,7 +4,7 @@ from random import choice, uniform, random
 from time import sleep, time
 
 from . import Logic
-from .. import MESSAGE_MAP, TIME_RESOLUTION_IN_SEC
+from .. import TIME_RESOLUTION_IN_SEC
 from ..func_moves import get_available_moves
 
 
@@ -157,12 +157,7 @@ class LegacyLogic(Logic):
 
         max_length_sec = 0
         for target in target_list:
-            try:
-                target_name = MESSAGE_MAP[target['name']]
-            except:  # KeyError ?
-                print("!! Target name is not given in MESSAGE_MAP (__init__.py)! papaguy won't understand it!",
-                      target['name'], MESSAGE_MAP)
-                continue
+            target_name = target['name']
 
             # some fixes to support BeRo's actual format
             automationtimepoints = target.get('automationtimepoints', target.get('automation', []))
@@ -176,7 +171,7 @@ class LegacyLogic(Logic):
                 time_sec = raw['time'] * TIME_RESOLUTION_IN_SEC + MOVEMENT_OFFSET_IN_SECONDS
                 value = int(raw['value'] * self.message_norm)
 
-                timer = Timer(time_sec, message_func, args=(target_name, value))
+                timer = Timer(time_sec, self.send_message_func, args=(target_name, value))
                 timer.start()
                 self.current_timers.append(timer)
                 max_length_sec = max(max_length_sec, time_sec)
@@ -184,13 +179,13 @@ class LegacyLogic(Logic):
         max_length_sec += TIME_RESOLUTION_IN_SEC
         # at the very end, reset the state so a new move can be started
         if 'env' in move:
-            reset_timer = Timer(max_length_sec, message_func, args=(MESSAGE_MAP['ENVELOPE'], 0))
+            reset_timer = Timer(max_length_sec, self.send_message_func, args=('ENVELOPE', 0))
             reset_timer.start()
             self.current_timers.append(reset_timer)
 
         for safety_wing_reset in range(10):
             max_length_sec += TIME_RESOLUTION_IN_SEC
-            reset_wings_timer = Timer(max_length_sec, message_func, args=(MESSAGE_MAP['wings'], 0))
+            reset_wings_timer = Timer(max_length_sec, self.send_message_func, args=('wings', 0))
             reset_wings_timer.start()
             self.current_timers.append(reset_wings_timer)
 

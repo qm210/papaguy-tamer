@@ -11,13 +11,14 @@ RUN python --version
 ENV VIRTUAL_ENV=/home/venv/
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
-
+ENV PYTHONUNBUFFERED 1
 
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY papaguy-tamer ./papaguy-tamer
 COPY moves ./moves
+COPY rockets ./rockets
 
 EXPOSE 8080
 
