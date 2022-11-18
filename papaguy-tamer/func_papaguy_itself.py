@@ -30,7 +30,7 @@ class PapaGuyItself:
         self.logic = logic
         self.clear_connection()
         print("PapaGuyItself constructed with logic", logic.name())
-        self.logic.init()
+        self.logic.on_init()
 
     def clear_connection(self):
         self.port = None
@@ -51,6 +51,8 @@ class PapaGuyItself:
         print("ATTEMPT CONNECTION AT", self.port)
         # TODO: could try / except serial.SerialException here
         self.connection = Serial(port, baudrate=SERIAL_BAUD)
+
+        Thread(target=self.logic.load_moves_from_file).start()  # we gönn ourselves some moves
         self.logic.on_connection()
 
         attempt = 0
@@ -83,6 +85,10 @@ class PapaGuyItself:
         self.clear_connection()
         print("Disconnected.")
         return True
+
+    def update_moves(self):
+        self.logic.load_moves()
+        return self.logic.list_moves()
 
     def try_autoconnect(self):
         self.disconnect()

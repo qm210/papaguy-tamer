@@ -3,12 +3,21 @@ from threading import Thread, Timer
 from random import choice, uniform, random
 from time import sleep, time
 
-from . import Logic, Moves
+from . import Logic
 from .. import MESSAGE_MAP, TIME_RESOLUTION_IN_SEC
 from ..func_moves import get_available_moves
 
 
 MOVEMENT_OFFSET_IN_SECONDS = 0.03
+
+
+class Moves:
+    current = None
+    all = []
+    remember_last_ids = deque([], 10)
+    next_idle_seconds = 0
+    last_move_executed_at = 0
+    next_idle_timer = None
 
 
 class LegacyLogic(Logic):
@@ -33,9 +42,6 @@ class LegacyLogic(Logic):
         self.current_timers = []
         print("CLEAR TO EXECUTE NEXT MOVE.")
 
-    def on_connection(self):
-        Thread(target=self.load_moves).start()  # we gönn ourselves some moves
-
     def on_init(self):
         self.choose_next_idle_seconds()
 
@@ -44,13 +50,11 @@ class LegacyLogic(Logic):
             self.maybe_move_out_of_boredom()
 
     def get_moves(self):
-        return self.moves.on_idle # there are no others (like radar or whatever)
+        return self.moves.all  # there are no others (like radar or whatever)
 
-    def load_moves(self):
+    def load_moves_from_file(self):
         self.moves.all = get_available_moves()
-        self.moves.on_radar = [move for move in self.moves.all if move['id'][0].isdigit()]
-        self.moves.on_idle = self.moves.all
-        print("LOADED MOVES.", len(self.moves.on_idle))
+        print("LOADED MOVES.", len(self.moves.all))
         return self.moves.all
 
     def on_message(self, action, payload):
@@ -70,7 +74,7 @@ class LegacyLogic(Logic):
         play_sound = random() < self.chance_of_talking
         print("WE MOVE OUT OF BOREDOM AND WAIT", self.next_idle_seconds, "AND DO WE SPEAK?", play_sound)
         try:
-            self.execute_some_move_from(self.moves.on_idle, play_sound)
+            self.execute_some_move_from(self.moves.all, play_sound)
         except Exception as e:
             print("error", e)
 
@@ -81,6 +85,9 @@ class LegacyLogic(Logic):
 
     def is_busy(self):
         return self.moves.current is not None
+
+    def is_doing_random_moves(self):
+        return self.do_random_moves
 
     def toggle_random_moves(self, value=None):
         self.do_random_moves = not self.do_random_moves if value is None else value

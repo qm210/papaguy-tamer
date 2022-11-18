@@ -51,7 +51,7 @@ def index():
         title=f"papaguy-tamer v{VERSION} is running since {ctime(server_start_time)}",
         message=f"qm says thanks for checking by.",
         connected=papaguy.connection is not None,
-        do_random_moves = papaguy.do_random_moves,
+        do_random_moves=papaguy.logic.is_doing_random_moves(),
     )
 
 
@@ -62,7 +62,7 @@ def favicon():
 
 @app.route('/moves')
 def list_moves():
-    known_moves = papaguy.load_moves()
+    known_moves = papaguy.logic.load_moves_from_file()
     return render_template(
         'moves.html',
         title="Moves",
@@ -83,12 +83,12 @@ def list_moves_to_console():
 
 
 @app.route('/moves/<id>')
-def initiate_move(id=None):
-    known_moves = papaguy.load_moves()  # wir gönnen uns, statt einfach liste vom cache zu nehmen
+def initiate_move(move_id=None):
+    known_moves = papaguy.logic.get_moves()
     try:
-        existing_move = next((move for move in known_moves if move['id'] == id))
+        existing_move = next((move for move in known_moves if move['id'] == move_id))
     except:
-        return f"Move \"{id}\" not found. Maybe refresh the main 'moves' page."
+        return f"Move \"{move_id}\" not found. Maybe refresh the main 'moves' page."
 
     if papaguy.execute_move(existing_move):
         papaguy.reset_log(f"Executing {existing_move['id']} [{existing_move['type']}]")
@@ -110,7 +110,7 @@ def connect_serial(port):
     def kthxbye():
         return redirect(url_for('print_serial_log'))
 
-    print("try to connect, does connection exist?", papaguy.connection is not None, "... should route to", route)
+    print("try to connect, does connection exist?", papaguy.connection is not None)
     if papaguy.connection is not None:
         return kthxbye()
 

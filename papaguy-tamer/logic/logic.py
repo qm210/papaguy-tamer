@@ -3,16 +3,6 @@ from collections import deque
 from typing import Any
 
 
-class Moves:
-    current = None
-    all = []
-    on_idle = []
-    remember_last_ids = deque([], 10)
-    next_idle_seconds = 0
-    last_move_executed_at = 0
-    next_idle_timer = None
-
-
 class Logic:
 
     @classmethod
@@ -37,7 +27,13 @@ class Logic:
     def is_busy(self) -> bool:
         pass
 
+    def is_doing_random_moves(self):
+        pass
+
     def toggle_random_moves(self, value):
+        pass
+
+    def load_moves_from_file(self):
         pass
 
     def execute_move(self, move) -> bool:
