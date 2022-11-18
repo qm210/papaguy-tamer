@@ -3,9 +3,7 @@ from time import time, ctime, sleep
 from threading import Timer
 import os
 
-from . import VERSION, GENERAL_MESSAGE, AUTO_CONNECT_AFTER_SECONDS, \
-    RANDOM_MOVES_ON_DEFAULT, SECONDS_TO_IDLE_AT_LEAST, SECONDS_TO_IDLE_AT_MOST, CHANCE_OF_TALKING
-
+from . import VERSION, GENERAL_MESSAGE, AUTO_CONNECT_AFTER_SECONDS
 from .func_papaguy_itself import PapaGuyItself
 from .logic import LegacyLogic, RocketLogic
 from .batch import batch_jobs
@@ -14,16 +12,19 @@ from .batch import batch_jobs
 app = Flask(__name__)
 server_start_time = time()
 
-logic = LegacyLogic(do_random_moves=RANDOM_MOVES_ON_DEFAULT,
-                    idle_seconds_min=SECONDS_TO_IDLE_AT_LEAST,
-                    idle_seconds_max=SECONDS_TO_IDLE_AT_MOST,
-                    chance_of_talking=CHANCE_OF_TALKING,)
+# logic = LegacyLogic(do_random_moves=RANDOM_MOVES_ON_DEFAULT,
+#                     idle_seconds_min=SECONDS_TO_IDLE_AT_LEAST,
+#                     idle_seconds_max=SECONDS_TO_IDLE_AT_MOST,
+#                     chance_of_talking=CHANCE_OF_TALKING,)
+logic = RocketLogic()
+
 papaguy = PapaGuyItself(logic)
 
 
 @app.before_first_request
 def startup():
     print("Hello.")
+
     def autoconnect_loop():
         print("Start Autoconnect loop.")
         papaguy.try_autoconnect()

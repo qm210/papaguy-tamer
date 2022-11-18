@@ -43,5 +43,3 @@ class Logic:
 
     def get_moves(self):
         pass
-
-

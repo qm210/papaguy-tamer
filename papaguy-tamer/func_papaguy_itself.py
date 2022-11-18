@@ -1,14 +1,12 @@
-from math import e
 from collections import deque
 from serial import Serial
 from time import sleep, time
 from struct import pack
-from threading import Timer, Thread
+from threading import Thread
 from continuous_threading import ContinuousThread
 import serial.tools.list_ports
 
-from . import GENERAL_MESSAGE, TIME_RESOLUTION_IN_SEC, MESSAGE_MAP, \
-    COMMUNICATION_DISABLED, VERBOSE
+from . import GENERAL_MESSAGE, COMMUNICATION_DISABLED, VERBOSE
 
 from .utils import play_sound, read_string_from
 from .logic import Logic
@@ -17,6 +15,9 @@ from .logic import Logic
 SERIAL_BAUD = 115200
 
 WAITING_FOR_RESPONSE_ATTEMPTS = 20
+
+# DEVELOPMENT_MODE does not need a real Arduino to test its logic
+DEVELOPMENT_MODE = True
 
 
 class PapaGuyItself:
@@ -58,7 +59,7 @@ class PapaGuyItself:
 
         attempt = 0
         alive_signal = ""
-        while attempt < WAITING_FOR_RESPONSE_ATTEMPTS and self.connection is not None:
+        while attempt < WAITING_FOR_RESPONSE_ATTEMPTS and not self.connection_exists():
             self.send_message(GENERAL_MESSAGE.ARE_YOU_ALIVE)
             alive_signal = read_string_from(self.connection)
             print("Waiting for response...", attempt, " / ", WAITING_FOR_RESPONSE_ATTEMPTS)
@@ -67,7 +68,7 @@ class PapaGuyItself:
             sleep(0.3)
             attempt += 1
 
-        if len(alive_signal) == 0 or self.connection is None:
+        if len(alive_signal) == 0 or not self.connection_exists():
             self.reset_log("Timeout. No Response")
             self.disconnect()
             return False
@@ -76,6 +77,9 @@ class PapaGuyItself:
         print("PapaGuy appears to be alive.")
         ContinuousThread(target=self.run_loop).start()
         return True
+
+    def connection_exists(self):
+        return self.connection is not None or DEVELOPMENT_MODE
 
     def disconnect(self) -> bool:
         if self.connection is None:
@@ -97,11 +101,13 @@ class PapaGuyItself:
             ports = self.get_port_list()
             port = next((port for port in ports if 'COM' in port or 'USB' in port or 'ACM' in port))
             return self.connect(port)
-        except:
+        except Exception as ex:
+            print("exception", ex)
             return False
 
     def run_loop(self):
-        while self.connection is not None:
+        print("RUN_LOOP called.")
+        while self.connection_exists():
             self.logic.on_idle_step()
 
             sleep(0.1)
@@ -115,7 +121,7 @@ class PapaGuyItself:
             self.log.append(data)
 
         if VERBOSE:
-            print("papaguy.communicate() stopped, because connection went down")
+            print("papaguy.run_loop() stopped due to break condition (i.e. connection went down or ...)")
 
         self.try_autoconnect()
 
@@ -148,11 +154,12 @@ class PapaGuyItself:
         if self.logic.is_busy():
             return False
 
-        self.logic.execute_move(move, self.send_message)
+        self.logic.execute_move(move, do_play_sound)
         return True
 
     def toggle_random_moves(self, value=None):
         self.logic.toggle_random_moves(value)
 
-    def speak(self, wavefile):
-        Thread(target=play_sound, args=(wavefile,), daemon=True).start()
+    @staticmethod
+    def speak(wave_file):
+        Thread(target=play_sound, args=(wave_file,), daemon=True).start()
