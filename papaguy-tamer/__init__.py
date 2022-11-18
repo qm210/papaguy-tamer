@@ -51,5 +51,3 @@ RADAR_DIRECTION = [
     125,
     160
 ]
-
-MESSAGE_NORM = 1023

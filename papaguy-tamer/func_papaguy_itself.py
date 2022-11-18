@@ -8,7 +8,7 @@ from continuous_threading import ContinuousThread
 import serial.tools.list_ports
 
 from . import GENERAL_MESSAGE, TIME_RESOLUTION_IN_SEC, MESSAGE_MAP, \
-    MESSAGE_NORM, COMMUNICATION_DISABLED, VERBOSE
+    COMMUNICATION_DISABLED, VERBOSE
 
 from .utils import play_sound, read_string_from
 from .logic import Logic
@@ -31,6 +31,7 @@ class PapaGuyItself:
         self.clear_connection()
         print("PapaGuyItself constructed with logic", logic.name())
         self.logic.on_init()
+        self.logic.set_callbacks(self.send_message, self.speak)
 
     def clear_connection(self):
         self.port = None
@@ -87,8 +88,8 @@ class PapaGuyItself:
         return True
 
     def update_moves(self):
-        self.logic.load_moves()
-        return self.logic.list_moves()
+        self.logic.load_moves_from_file()
+        return self.logic.get_moves()
 
     def try_autoconnect(self):
         self.disconnect()
@@ -147,11 +148,11 @@ class PapaGuyItself:
         if self.logic.is_busy():
             return False
 
-        if 'sample' in move and do_play_sound:
-            Thread(target=play_sound, args=(move['sample'],), daemon=True).start()
-
-        self.logic.execute_move(move)
+        self.logic.execute_move(move, self.send_message)
         return True
 
     def toggle_random_moves(self, value=None):
         self.logic.toggle_random_moves(value)
+
+    def speak(self, wavefile):
+        Thread(target=play_sound, args=(wavefile,), daemon=True).start()

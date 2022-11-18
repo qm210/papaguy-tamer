@@ -30,7 +30,15 @@ class LegacyLogic(Logic):
         self.chance_of_talking = kwargs.get('chance_of_talking', 0.5)
         self.idle_seconds_min = kwargs.get('idle_seconds_min', 5)
         self.idle_seconds_max = kwargs.get('idle_seconds_max', 20)
+        self.message_norm = kwargs.get('message_norm', 1023)
         self.next_idle_seconds = self.idle_seconds_min
+
+        self.send_message_func = None
+        self.play_sound_func = None
+
+    def set_callbacks(self, message_func, speak_func):
+        self.send_message_func = message_func
+        self.play_sound_func = speak_func
 
     def clear(self):
         self.clear_current_move()
@@ -105,8 +113,11 @@ class LegacyLogic(Logic):
 
         self.execute_move(chosen_from_nonrecent, play_sound)
 
-    def execute_move(self, move):
+    def execute_move(self, move, do_play_sound=True):
         self.moves.current = move
+
+        if 'sample' in move and do_play_sound and self.play_sound_func is not None:
+            self.play_sound_func(move['sample'])
 
         target_list = []
         if 'move' in move and 'tracks' in move['move']:
@@ -163,9 +174,9 @@ class LegacyLogic(Logic):
                     raw = {'time': index, 'value': point}
 
                 time_sec = raw['time'] * TIME_RESOLUTION_IN_SEC + MOVEMENT_OFFSET_IN_SECONDS
-                value = int(raw['value'] * MESSAGE_NORM)
+                value = int(raw['value'] * self.message_norm)
 
-                timer = Timer(time_sec, self.send_message, args=(target_name, value))
+                timer = Timer(time_sec, message_func, args=(target_name, value))
                 timer.start()
                 self.current_timers.append(timer)
                 max_length_sec = max(max_length_sec, time_sec)
@@ -173,13 +184,13 @@ class LegacyLogic(Logic):
         max_length_sec += TIME_RESOLUTION_IN_SEC
         # at the very end, reset the state so a new move can be started
         if 'env' in move:
-            reset_timer = Timer(max_length_sec, self.send_message, args=(MESSAGE_MAP['ENVELOPE'], 0))
+            reset_timer = Timer(max_length_sec, message_func, args=(MESSAGE_MAP['ENVELOPE'], 0))
             reset_timer.start()
             self.current_timers.append(reset_timer)
 
         for safety_wing_reset in range(10):
             max_length_sec += TIME_RESOLUTION_IN_SEC
-            reset_wings_timer = Timer(max_length_sec, self.send_message, args=(MESSAGE_MAP['wings'], 0))
+            reset_wings_timer = Timer(max_length_sec, message_func, args=(MESSAGE_MAP['wings'], 0))
             reset_wings_timer.start()
             self.current_timers.append(reset_wings_timer)
 

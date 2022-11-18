@@ -1,5 +1,4 @@
 import string
-from collections import deque
 from typing import Any
 
 
@@ -8,6 +7,9 @@ class Logic:
     @classmethod
     def name(cls):
         return cls.__name__
+
+    def set_callbacks(self, message_func, speak_func):
+        pass
 
     def clear(self):
         pass
@@ -36,7 +38,7 @@ class Logic:
     def load_moves_from_file(self):
         pass
 
-    def execute_move(self, move) -> bool:
+    def execute_move(self, move, do_play_sound) -> bool:
         pass
 
     def get_moves(self):
