@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>PapaGuy-Tamer</title>
+        <title>PapaGuy-Tamer: Rocket</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
         {% if refresh is defined %}
             <meta http-equiv="refresh" content="{{refresh}}">
@@ -10,6 +10,9 @@
     <body>
         <h1>GNU Rocket Script interface</h1>
         <p>{{ title }}</p>
+        {% if port is None %}
+            <p><a href="{{ url_for('list_serial_ports') }}">Connect...</a></p>
+        {% endif %}
         <p>
             Idea is, you enter a GNU Rocket script here and send it to the thingy, and then we'll see / measure how often it explodes
         </p>
@@ -21,6 +24,9 @@
                 class="huge-field"
                 name="rocket-script"
             >{{ script }}</textarea>
+            <label for="number-steps">Number of Steps (50ms each)</label>
+            <input name="number-steps" placeholder="200"/>
+            <br/>
             <input type="submit"/>
         </form>
         {% if footer is defined %}

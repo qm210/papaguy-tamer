@@ -99,10 +99,11 @@ class PapaGuyItself:
             ports = self.get_port_list()
             port = next((port for port in ports if 'COM' in port or 'USB' in port or 'ACM' in port))
             return self.connect(port)
+        except StopIteration:
+            print("... no port available.")
         except Exception as ex:
-            print("exception", repr(ex)
-                  )
-            return False
+            print("exception", repr(ex))
+        return False
 
     def run_loop(self):
         print("RUN_LOOP called.")

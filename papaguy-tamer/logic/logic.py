@@ -1,18 +1,26 @@
 import string
 from typing import Any
+from threading import Thread
 
 
 class Logic:
+
+    def __init__(self):
+        self.send_message_func = None
+        self.play_sound_func = None
+        self.threads: list[Thread] = []
 
     @classmethod
     def name(cls):
         return cls.__name__
 
     def set_callbacks(self, message_func, speak_func):
-        raise NotImplementedError()
+        self.send_message_func = message_func
+        self.play_sound_func = speak_func
 
     def clear(self):
-        pass
+        for thread in self.threads:
+            thread.join()
 
     def on_init(self):
         pass
@@ -44,5 +52,5 @@ class Logic:
     def get_moves(self):
         pass
 
-    def process_script(self, script: string) -> Any:
+    def process_script(self, script: string, **kwargs) -> Any:
         raise NotImplementedError()

@@ -21,3 +21,19 @@ a {
     width: 100%;
     height: 60vh;
 }
+
+input {
+    font-size: larger;
+    padding: 0.25rem;
+    margin: auto 0.5rem;
+}
+
+input[type="submit"] {
+    padding: 1rem;
+    background-color: cyan;
+    border-radius: 4px;
+}
+
+form {
+    line-height: 60px;
+}

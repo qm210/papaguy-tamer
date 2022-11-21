@@ -25,6 +25,7 @@ class LegacyLogic(Logic):
     current_timers = []
 
     def __init__(self, *args, **kwargs):
+        super().__init__()
         self.moves = Moves()
         self.do_random_moves = kwargs.get('do_random_moves', False)
         self.chance_of_talking = kwargs.get('chance_of_talking', 0.5)
@@ -33,15 +34,9 @@ class LegacyLogic(Logic):
         self.message_norm = kwargs.get('message_norm', 1023)
         self.next_idle_seconds = self.idle_seconds_min
 
-        self.send_message_func = None
-        self.play_sound_func = None
-
-    def set_callbacks(self, message_func, speak_func):
-        self.send_message_func = message_func
-        self.play_sound_func = speak_func
-
     def clear(self):
         self.clear_current_move()
+        super().clear()
 
     def clear_current_move(self):
         self.moves.current = None

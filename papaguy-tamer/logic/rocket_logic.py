@@ -1,23 +1,25 @@
+import logging
 import string
 from rocket import Rocket
 from rocket.controllers import TimeController
 from time import sleep
+from threading import Thread
 
 from . import Logic
 
 
 class RocketLogic(Logic):
-    def __init__(self):
-        self.send_message_func = None
-        self.play_sound_func = None
 
-    def set_callbacks(self, message_func, speak_func):
-        self.send_message_func = message_func
-        self.play_sound_func = speak_func
-        print("SET_CALLBACKS")
+    track_names = ["head_tilt", "head_rotate", "wings", "beak", "body_tilt", "eyes"]
+    track_resolution = 20  # 1 sec / 20 = 50ms resolution like the legacy logic
+
+    def __init__(self):
+        super().__init__()
+        self.controller = TimeController(self.track_resolution)
 
     def clear(self):
         print("CLEAR")
+        super().clear()
 
     def on_init(self):
         print("ON_INIT")
@@ -51,20 +53,15 @@ class RocketLogic(Logic):
         print("GET_MOVES")
         return []
 
-    track_names = ["head_tilt", "head_rotate", "wings", "beak", "body_tilt", "eyes"]
-    track_resolution = 20  # 1 sec / 20 = 50ms resolution like the legacy logic
-
-    def process_script(self, xml_file: string):
-        controller = TimeController(self.track_resolution)
-        rocket = Rocket.from_project_file(controller, xml_file)
+    def rocket_loop(self, rocket, steps):
         tracks = [rocket.track(track_name) for track_name in self.track_names]
         tracks_pair = zip(tracks, self.track_names)
-        steps = 200  # how else to terminate?
         print(f"tracks registered: {self.track_names}, now start the rocket ({steps} steps, don't know how to break otherwise)")
         rocket.start()
         try:
-            while steps > 0:
-                print(f"{steps} steps until break, rocket time {rocket.time}")
+            while steps >= 0:  # how else to terminate?
+                if steps % 50 == 0:
+                    print(f"{steps} steps until break, rocket time {rocket.time}")
                 rocket.update()
                 for track, target in tracks_pair:
                     self.send_message_func(target, int(rocket.value(target)))
@@ -74,3 +71,24 @@ class RocketLogic(Logic):
             print("rocket forcefully landed.")
             return
         print("rocket landed.")
+
+    def start_rocket_thread(self, rocket, steps):
+        thread = Thread(target=self.rocket_loop, args=(rocket, steps))
+        thread.start()
+        self.threads.append(thread)
+
+    def process_script(self, xml_file: string, steps: int = 200):
+        rocket = Rocket.from_project_file(self.controller, xml_file, log_level=logging.DEBUG)
+        self.start_rocket_thread(rocket, steps)
+
+    @staticmethod
+    def connect_socket(logic, host, port, timeout_sec=-1):
+        try:
+            rocket = Rocket.from_socket(logic.controller, track_path="./rocket", host=host, port=int(port))
+            timeout_steps = timeout_sec * logic.track_resolution
+            logic.start_rocket_thread(rocket, timeout_steps)
+            print(f"started rocket from socket, timeout steps: {timeout_steps} (negative = forever)")
+            return True
+        except Exception as ex:
+            print("exception in connect_socket", repr(ex))
+        return False

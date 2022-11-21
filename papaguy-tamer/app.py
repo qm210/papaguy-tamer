@@ -1,14 +1,14 @@
 from flask import Flask, render_template, send_from_directory, request, url_for, redirect
 from time import time, ctime, sleep
-from threading import Timer
 from traceback import print_exc
+import threading
 import os
 
 from . import VERSION, GENERAL_MESSAGE, AUTO_CONNECT_AFTER_SECONDS
 from .func_papaguy_itself import PapaGuyItself
 from .logic import LegacyLogic, RocketLogic
 from .batch import batch_jobs
-from .utils import read_file_content
+from .utils import read_file_content, write_to_file
 
 
 app = Flask(__name__)
@@ -25,19 +25,21 @@ papaguy = PapaGuyItself(logic)
 temp_rocket_filename = "./rockets/last.xml"
 fallback_rocket_filename = "./rockets/default.xml"
 
+
 @app.before_first_request
 def startup():
-    print("Hello.")
+    print(f"Hello. Active Threads: {threading.activeCount()}")
 
     def autoconnect_loop():
-        print("Start Autoconnect loop.")
+        print("Try to start Autoconnect loop...")
         papaguy.try_autoconnect()
         try:
-            Timer(AUTO_CONNECT_AFTER_SECONDS, autoconnect_loop).start()
+            threading.Timer(AUTO_CONNECT_AFTER_SECONDS, autoconnect_loop).start()
         except:
             print("could not start threading.Timer, use blocking delay (few seconds)")
             sleep(5)
             autoconnect_loop()
+
     autoconnect_loop()
     return redirect(url_for('index'))
 
@@ -201,19 +203,67 @@ def force_batch_jobs():
 @app.route('/rocket-starter')
 def rocket_page():
     return render_template(
-        'rocket.html',
+        'rocket-start.html',
         title=f"Running on port {papaguy.port}",
-        script=read_file_content(temp_rocket_filename, fallback_rocket_filename)
+        disconnected={papaguy.port is None},
+        script=read_file_content(temp_rocket_filename, fallback_rocket_filename),
+        steps=read_file_content(".last.rocket.steps")
     )
 
 
 @app.route('/submit-rocket-script', methods=['POST'])
 def submit_rocket_script():
     script = request.form['rocket-script']
-    with open(temp_rocket_filename, "w") as rocket_file:
-        rocket_file.write(script)
-    papaguy.logic.process_script(temp_rocket_filename)
+    write_to_file(temp_rocket_filename, script)
+
+    steps = request.form.get('number-steps', default=200, type=int)
+    write_to_file(".last.rocket.steps", steps)
+
+    papaguy.logic.process_script(temp_rocket_filename, steps=steps)
     try:
         return redirect(url_for('rocket_page'))
     except Exception as ex:
         return print_exc()
+
+
+@app.route('/rocket-socket')
+def rocket_socket_page(message=""):
+    is_rocket_logic = papaguy.logic.name() == RocketLogic.__name__
+    return render_template(
+        'rocket-socket.html',
+        is_rocket_logic=is_rocket_logic,
+        host=read_file_content(".last.rocket.host"),
+        timeout_sec=read_file_content(".last.rocket.timeout"),
+        message=message
+    )
+
+
+@app.route('/submit-rocket-socket', methods=['POST'])
+def submit_rocket_socket():
+    if papaguy.logic.name() != RocketLogic.__name__:
+        return "is not a rocket papaguy. you can not be here."
+
+    host = request.form['socket-host']
+    write_to_file(".last.rocket.host", host)
+
+    port = 1338
+    if ":" in host:
+        parse = host.split(':')
+        host = parse[0]
+        port = int(parse[1])
+
+    timeout_input = request.form['timeout-sec']
+    write_to_file(".last.rocket.timeout", timeout_input)
+    timeout_sec = int(timeout_input) if timeout_input.isnumeric() else 30
+
+    message = "this seems to have failed."
+    if RocketLogic.connect_socket(papaguy.logic, host, port, timeout_sec=timeout_sec):
+        message = f"socket connected on {host}:{port}... timeout after {timeout_sec} seconds"
+    return rocket_socket_page(message)
+
+
+@app.route('/clear')
+def clear_papaguy():
+    papaguy.logic.clear()
+    print(threading.enumerate())
+    return f"papaguy cleared (i.e. all threads, hopefully). activeCount: {threading.activeCount()}"

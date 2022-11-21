@@ -51,5 +51,9 @@ def read_file_content(filename, fallback_filename=None):
             result = rocket_file.read()
     except FileNotFoundError:
         pass
-    print(fallback_filename, getcwd())
     return result
+
+
+def write_to_file(filename, content):
+    with open(filename, "w") as rocket_file:
+        rocket_file.write(content)

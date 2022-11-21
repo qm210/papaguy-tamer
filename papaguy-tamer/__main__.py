@@ -7,8 +7,7 @@ from requests import get
 
 def startup():
     try:
-        response = get('http://localhost:8080', verify=False)
-        print("auto request response", response.content)
+        get('http://localhost:8080', verify=False)
     except:
         print("no response from auto request, visit manually plis")
 
